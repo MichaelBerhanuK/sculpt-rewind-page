@@ -1,0 +1,10 @@
+# Raw video sources — kept on disk, out of git (large binaries)
+videos/
+
+# macOS
+.DS_Store
+
+# Python
+.venv/
+__pycache__/
+*.pyc

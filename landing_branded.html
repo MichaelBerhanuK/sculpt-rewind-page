@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sculpt Undo History</title>
+<style>
+  @font-face {
+    font-family: 'FuzzyBubbles';
+    src: url('branding/FuzzyBubbles-Bold.ttf') format('truetype');
+    font-weight: 700; font-display: swap;
+  }
+
+  :root{
+    /* matched to the background baked into the hero GIF (#FBF7F0) so it blends seamlessly.
+       Export every background-matched GIF on this exact colour, or change this to match. */
+    --cream:#FBF7F0;
+    --cream-2:#F8F1E4;
+    --card:#FFFDF9;
+    --ink:#2A2724;
+    --ink-2:#6B645C;
+    --muted:#9A9188;
+    --orange:#E87813;
+    --orange-dk:#C4630C;
+    --orange-soft:#FBE7D3;
+    --dark:#242322;
+    --dark-2:#2E2D2B;
+    --border:rgba(42,39,36,.10);
+    --radius:18px;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{max-width:1080px;margin:0 auto;padding:0 24px 60px;}
+
+  h1,h2,h3,.brandfont{font-family:'FuzzyBubbles',ui-rounded,system-ui,sans-serif;font-weight:700;letter-spacing:.005em;}
+  h1{font-size:52px;line-height:1.12;}
+  h2{font-size:30px;line-height:1.2;}
+  h3{font-size:19px;}
+  p{color:var(--ink-2);}
+  .lead{font-size:17px;color:var(--ink-2);max-width:52ch;}
+  .ph{color:var(--muted);font-style:italic;}
+
+  /* ---------- masthead ---------- */
+  .masthead{text-align:center;padding:60px 0 0;}
+  #see{margin-top:0;}   /* hero sits tight under the logo */
+  .masthead img{width:min(474px,82vw);height:auto;display:block;margin:0 auto;}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;
+    padding:13px 24px;border-radius:12px;font-weight:650;font-size:15px;text-decoration:none;
+    box-shadow:0 2px 0 var(--orange-dk);border:none;cursor:pointer;}
+  .btn:hover{background:var(--orange-dk);box-shadow:0 2px 0 #b95610;}
+  .btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--border);box-shadow:none;}
+  .btn.sm{padding:10px 18px;font-size:14px;}
+
+  /* ---------- section shell ---------- */
+  .sec{margin-top:26px;}
+  .panel{background:var(--cream-2);border-radius:var(--radius);padding:26px;}
+  .panel.light{background:var(--card);border:1px solid var(--border);}
+  .kicker{display:inline-flex;align-items:center;gap:7px;font-family:'FuzzyBubbles',system-ui,sans-serif;
+    font-size:20px;color:var(--ink);margin-bottom:4px;}
+  .kicker .ico{width:34px;height:34px;border-radius:10px;background:var(--orange-soft);
+    display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .spark{color:var(--orange);font-size:15px;}
+  .hand{font-family:'FuzzyBubbles',system-ui,sans-serif;color:var(--orange);font-size:15px;}
+  .underline{display:block;width:190px;height:12px;margin-top:2px;}
+
+  /* ---------- media placeholders ---------- */
+  .media{background:var(--dark);border-radius:14px;display:flex;align-items:center;justify-content:center;
+    text-align:center;color:#8f8b85;font-size:12.5px;padding:18px;line-height:1.5;
+    border:1px dashed rgba(255,255,255,.16);}
+  .media b{color:#d9d4cc;}
+  .media.trailer{aspect-ratio:16/9;height:auto;}
+  .media.hero{aspect-ratio:16/9;height:auto;}
+  .media.wide{aspect-ratio:16/9;height:auto;}
+  .media.lane{aspect-ratio:16/9;height:auto;border-radius:12px;}
+  .media.sq{height:170px;}
+  .media.thin{aspect-ratio:16/9;height:auto;}
+  /* the top "how it works" GIF: sits on the cream ground at its own ratio, no frame */
+  .quickgif{display:flex;justify-content:center;margin:0 0 22px;}
+  .quickgif img{width:min(760px,100%);height:auto;display:block;}
+  /* condensed groups: 2-up capped so its GIFs sit at the same size as the 3-up */
+  .duo{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:68%;}
+  /* the width cap is a desktop nicety — drop it early so the GIFs stay usable when narrow */
+  @media (max-width:1040px){.duo{max-width:none;}}
+  /* small paired GIFs for the face sets / masks / visibility group */
+  .media.mini{aspect-ratio:16/9;height:auto;border-radius:10px;font-size:11px;padding:10px;}
+  /* "blend" wells sit on the cream ground — for transparent GIFs with no dark frame */
+  .media.blend{background:transparent;border:2px dashed rgba(232,120,19,.40);color:var(--muted);}
+  .media.blend b{color:var(--ink);}
+
+  /* ---------- grids ---------- */
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  .g5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  .split{display:grid;grid-template-columns:290px 1fr;gap:26px;align-items:center;}
+  /* lane rows: equal-ish halves so the GIF reads well on either side */
+  /* text is ALWAYS first in the DOM, so it always stacks on top when the row collapses.
+     Reversed rows swap sides with grid placement, never with source order. */
+  .lanerow{display:grid;grid-template-columns:1fr 1.2fr;gap:26px;align-items:center;}
+  .lanerow.rev{grid-template-columns:1.2fr 1fr;}
+  .lanerow.rev > .txt{grid-column:2;grid-row:1;}
+  .lanerow.rev > .media{grid-column:1;grid-row:1;}
+  /* RESPONSIVE — the expected viewing context is a TALL, NARROW window
+     (roughly half of a 16:9 display, ~960px wide), so horizontal layouts are
+     held far longer than usual. Collapsing to one column is a last resort,
+     not the default. */
+  @media (max-width:900px){
+    .g4{grid-template-columns:repeat(2,1fr);}      /* facts + pricing go 2x2, never 1-up here */
+    h1{font-size:42px;}
+  }
+  @media (max-width:760px){
+    .g2,.split,.lanerow,.lanerow.rev{grid-template-columns:1fr;}
+    .lanerow.rev > .txt,.lanerow.rev > .media{grid-column:1;grid-row:auto;}
+    .g5{grid-template-columns:repeat(2,1fr);}
+    h1{font-size:38px;} h2{font-size:25px;}
+  }
+  /* feature groups stay side-by-side the longest — they are the whole point of the section */
+  @media (max-width:560px){
+    .g3,.g4,.duo{grid-template-columns:1fr;}
+  }
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .lanecap{font-size:13.5px;font-weight:650;margin-top:9px;color:var(--ink);}
+  .lanesub{font-size:11.5px;color:var(--muted);font-style:italic;}
+
+  /* ---------- feature strip (icon row) ---------- */
+  .featrow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--cream-2);
+    border-radius:var(--radius);padding:24px 10px;}
+  .featrow > div{padding:0 18px;text-align:center;border-right:1px solid var(--border);}
+  .featrow > div:last-child{border-right:none;}
+  .featrow .ico{font-size:24px;color:var(--orange);margin-bottom:8px;}
+  .featrow h3{font-size:15.5px;margin-bottom:5px;}
+  .featrow p{font-size:12.5px;line-height:1.5;}
+  /* holds four across as long as it can (tall/narrow windows are the default view):
+     first tighten padding and type, only then step down to 2-up, then 1-up. */
+  @media (max-width:940px){
+    .featrow{padding:22px 4px;}
+    .featrow > div{padding:0 11px;}
+    .featrow h3{font-size:14px;}
+    .featrow p{font-size:11.5px;}
+  }
+  @media (max-width:660px){
+    .featrow{grid-template-columns:1fr 1fr;gap:22px 0;padding:24px 10px;}
+    .featrow > div{padding:0 16px;}
+    .featrow > div:nth-child(2n){border-right:none;}
+    .featrow h3{font-size:15px;}
+    .featrow p{font-size:12.5px;}
+  }
+  @media (max-width:430px){
+    .featrow{grid-template-columns:1fr;}
+    .featrow > div{border-right:none;}
+  }
+
+  /* ---------- testimonials ---------- */
+  .quote-strip{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px 22px;display:flex;align-items:center;gap:16px;margin-top:26px;position:relative;}
+  .quote-strip .avatar{flex:0 0 46px;height:46px;border-radius:50%;background:var(--orange-soft);
+    border:1.5px dashed var(--orange);display:flex;align-items:center;justify-content:center;
+    font-size:9px;color:var(--orange-dk);}
+  .quote-strip .q{font-size:15.5px;color:var(--ink);font-style:italic;margin-bottom:3px;}
+  .quote-strip .who{font-size:12.5px;color:var(--muted);}
+  .quote-strip .deco{position:absolute;right:16px;top:12px;color:var(--orange);opacity:.55;font-size:13px;}
+
+  /* ---------- chips ---------- */
+  .chip{display:inline-block;border:1.5px solid var(--border);border-radius:999px;padding:6px 16px;
+    font-size:13px;color:var(--ink-2);margin:0 7px 7px 0;background:#fff;cursor:default;}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  /* ---------- pricing ---------- */
+  .tier{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
+  .tier.feature{border:2px solid var(--orange);box-shadow:0 4px 0 var(--orange-soft);}
+  .tier .price{font-family:'FuzzyBubbles',system-ui,sans-serif;font-size:32px;color:var(--ink);margin:6px 0 10px;}
+  .tier ul{list-style:none;font-size:13px;color:var(--ink-2);}
+  .tier li{padding:4px 0 4px 18px;position:relative;}
+  .tier li:before{content:"✓";position:absolute;left:0;color:var(--orange);font-weight:700;}
+
+  /* ---------- compare ---------- */
+  .cmp{border-radius:14px;padding:18px;}
+  .cmp.no{background:#FCF1EC;border:1px solid #F0CFC0;}
+  .cmp.yes{background:#F1F7EE;border:1px solid #CFE3C4;}
+  .cmp ul{list-style:none;font-size:13.5px;}
+  .cmp li{padding:5px 0 5px 24px;position:relative;color:var(--ink-2);}
+  .cmp.no li:before{content:"✕";position:absolute;left:0;color:#D9663F;font-weight:700;}
+  .cmp.yes li:before{content:"✓";position:absolute;left:0;color:#5E9B45;font-weight:700;}
+
+  /* ---------- faq ---------- */
+  .faq-item{border-bottom:1px solid var(--border);padding:14px 0;}
+  .faq-item h3{font-size:16px;margin-bottom:4px;}
+  .faq-item p{font-size:13.5px;}
+
+  /* ---------- final cta ---------- */
+  .finalcta{background:var(--orange-soft);border-radius:var(--radius);padding:34px;
+    display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;margin-top:30px;}
+
+  footer{margin-top:34px;padding-top:20px;border-top:1px solid var(--border);
+    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);}
+
+  /* ---------- designer extras ---------- */
+  #extras-bar{position:fixed;bottom:14px;right:14px;z-index:99;background:#fff;border:1px solid var(--border);
+    border-radius:10px;padding:9px 13px;font-size:12.5px;box-shadow:0 3px 12px rgba(0,0,0,.10);
+    display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+  #extras-bar input{width:15px;height:15px;cursor:pointer;accent-color:var(--orange);}
+  .note{background:#FFF8E6;border-left:3px solid #E0A800;padding:9px 12px;font-size:12.5px;
+    color:#5A4A10;margin:12px 0;border-radius:0 8px 8px 0;}
+  .note b{color:#3D3208;}
+  .tag{display:inline-block;background:var(--orange-soft);color:var(--orange-dk);font-size:10px;
+    font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border-radius:5px;margin-bottom:9px;}
+  body.hide-extras .note,body.hide-extras .tag,body.hide-extras .fold{display:none !important;}
+  .fold{background:var(--ink);color:#fff;padding:13px 22px;border-radius:12px;font-size:12.5px;margin-top:26px;}
+</style>
+</head>
+<body class="hide-extras">
+
+<label id="extras-bar"><input type="checkbox" id="extras"> Show designer notes</label>
+
+<div class="page">
+
+<!-- ================= MASTHEAD ================= -->
+<header class="masthead">
+  <img src="branding/Logo.png" alt="Sculpt Undo History">
+</header>
+<div class="note"><b>Designer:</b> top navigation bar removed for now — the page leads with the centred logo and goes straight into the trailer. If a nav returns later it should stay minimal and not compete with the hero.</div>
+
+<!-- ================= 1 · HERO ================= -->
+<section class="sec" id="see">
+  <span class="tag">1 · Hero</span>
+
+  <div class="quickgif">
+    <img src="branding/improved-dragon-hd.gif" alt="Scrubbing a dragon sculpt through its history">
+  </div>
+  <div class="note"><b>Designer:</b> this GIF is <b>background-matched</b> — it should feel drawn onto the cream page, not embedded in a player. No dark well, no play button, no chrome. It's the two-second "oh, I get it" before the trailer, so it autoplays and loops silently. Native size is 960×562, centred at its own ratio rather than stretched. The scrub bar is baked into the GIF, so nothing sits on top of it.</div>
+
+<!-- ================= FEATURE ICON ROW ================= -->
+<div class="sec">
+  <div class="featrow">
+    <div><div class="ico">↺</div><h3>Per-Object History</h3><p>Independent history for each object. Switch objects, keep your history.</p></div>
+    <div><div class="ico">⇄</div><h3>Scrubbable Timeline</h3><p>Slide through your sculpt history and preview any step instantly.</p></div>
+    <div><div class="ico">🎬</div><h3>Movie Mode</h3><p>Export what you've made — your sculpt's history as a video.</p></div>
+    <div><div class="ico">🛡</div><h3>Stable &amp; Reliable</h3><p>Built for real production. Tested well past 15 million polygons.</p></div>
+  </div>
+</div>
+
+
+  <div class="media trailer"><div><b>LAUNCH TRAILER — VIDEO</b><br>the full product film · 16:9</div></div>
+
+  <div style="text-align:center;margin-top:30px;">
+    <h1>Ctrl+Z ❌&nbsp; Scrub your history ✅</h1>
+    <svg class="underline" style="margin:6px auto 0;" viewBox="0 0 190 12" fill="none">
+      <path d="M3 8.5C40 3.5 78 2.5 120 5.5C143 7 165 8 187 6" stroke="#E87813" stroke-width="3.5" stroke-linecap="round"/>
+    </svg>
+    <p class="lead ph" style="margin:12px auto 0;">[One line. Ten words maximum.]</p>
+  </div>
+
+  <div style="text-align:center;margin-top:34px;">
+    <div class="hand">✦ Don't take our word for it ✦</div>
+    <h2 style="margin-top:2px;">Try it right here.</h2>
+    <p class="lead ph" style="margin:6px auto 0;">[Drag the slider and scrub a real sculpt — no install needed.]</p>
+  </div>
+
+  <div class="media hero" style="margin-top:16px;">
+    <div><b>INTERACTIVE SCRUBBER — PLACEHOLDER</b><br><br>
+    a real draggable slider running over a sequence of WebP frames<br>
+    the visitor drags and watches the sculpt build up / rewind<br><br>
+    on-screen prompt: <i>"Drag the slider →"</i></div>
+  </div>
+  <div style="text-align:center;margin-top:14px;">
+    <span class="chip on">Everything</span><span class="chip">Horn</span><span class="chip">Jaw</span>
+    <span class="chip">Face</span><span class="chip">Eyes</span><span class="chip">Neck</span>
+    <div class="hand" style="margin-top:6px;">↑ each button swaps in a different WebP set</div>
+  </div>
+
+  <div class="note"><b>Designer:</b> the centrepiece and the one genuinely interactive element on the page. A visitor drags and watches a character build up or rewind — the actual <b>feel</b> of scrubbing before buying. Needs an obvious grab handle, a "drag me" cue on first load, touch support, and a sensible loading strategy for several WebP sets. <b>No buy buttons in the hero</b> — the marketplace supplies its own purchase sidebar.</div>
+</section>
+
+<!-- ---- testimonial A ---- -->
+<div class="quote-strip">
+  <div class="avatar">PHOTO</div>
+  <div>
+    <div class="q ph">"[Short quote — one sentence, max two lines. The 'someone I respect already uses this' cue.]"</div>
+    <div class="who ph">[Name] · [studio / credit]</div>
+  </div>
+  <div class="deco">✦</div>
+</div>
+<div class="note"><b>Designer:</b> <b>interstitial testimonial pattern</b> — a thin single-quote band recurring three times down the page (here, mid-page, before pricing). Not a section: a breath between sections. Keep all three visually identical and lighter than surrounding blocks. One quote each, never a carousel.</div>
+
+<!-- ================= 2 · LANE GALLERY ================= -->
+<section class="sec">
+  <span class="tag">2 · Lane gallery</span>
+  <div class="kicker"><span class="spark">✦</span> Not just brush strokes. <span class="spark">✦</span></div>
+
+  <div class="panel" style="margin-top:14px;">
+    <div class="txt"><h2>Vertex paint &amp; Edit Mode changes</h2>
+      <p style="margin-top:6px;font-size:14.5px;"><span class="ph">[one short line covering both]</span></p></div>
+    <div class="duo" style="margin-top:16px;">
+      <div><div class="media mini">GIF — vertex paint</div><div class="lanecap">Vertex paint</div></div>
+      <div><div class="media mini">GIF — edit mode changes</div><div class="lanecap">Edit Mode changes</div></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:14px;">
+    <div class="txt"><h2>Face sets, masks &amp; visibility</h2>
+      <p style="margin-top:6px;font-size:14.5px;"><span class="ph">[one short line covering all three]</span></p></div>
+    <div class="g3" style="margin-top:16px;">
+      <div><div class="media mini">GIF — face sets</div><div class="lanecap">Face sets</div></div>
+      <div><div class="media mini">GIF — masks</div><div class="lanecap">Masks</div></div>
+      <div><div class="media mini">GIF — visibility</div><div class="lanecap">Visibility</div></div>
+    </div>
+  </div>
+
+  <div class="panel split" style="margin-top:14px;">
+    <div class="txt"><div class="kicker"><span class="ico">🖌</span></div>
+      <h2>All sculpt brushes</h2>
+      <p style="margin-top:6px;font-size:14.5px;">Including cloth brushes. <span class="ph">[one short line]</span></p></div>
+    <div class="media wide">GIF — sculpt + cloth brushes scrubbing</div>
+  </div>
+
+  <div class="note"><b>Designer:</b> three blocks. The first two are <b>condensed groups</b> — a heading on top with small GIFs beneath (two, then three). They share one treatment so they read as a matched pair of "and it covers these too" statements rather than separate pitches. The 2-up grid is width-capped so its GIFs land at the same size as the 3-up. Copy stays to <b>one short line per block</b>.</div>
+  <div class="note"><b>Open question from us:</b> "All sculpt brushes" may be cut entirely — it's the least surprising claim, since people assume brush strokes are covered. It sits last so removing it costs nothing structurally. Don't build a layout that breaks if this block disappears. ("Including cloth brushes" is the non-obvious part; if the block goes, that detail should move to the facts strip or FAQ.)</div>
+</section>
+
+<!-- ================= 3 · ACROSS OBJECTS ================= -->
+<section class="sec">
+  <span class="tag">3 · Across objects</span>
+  <div class="panel split">
+    <div>
+      <div class="kicker"><span class="ico">🗂</span></div>
+      <h2>Every object keeps its own undo history.</h2>
+    </div>
+    <div class="media wide">GIF — several objects in one scene, each scrubbed independently</div>
+  </div>
+  <div class="note"><b>Designer:</b> its own full-width beat — a distinct idea from the lane gallery, not a tile inside it. The GIF must make it obvious that each object carries a separate timeline: scrub one, the others stay put.</div>
+</section>
+
+<!-- ================= 4 · PERFORMANCE ================= -->
+<section class="sec">
+  <span class="tag">4 · Performance assurance</span>
+  <div class="panel split">
+    <div>
+      <div class="hand">✦ It won't slow you down ✦</div>
+      <h2 style="margin-top:4px;">Tested on meshes with millions of polygons.</h2>
+      <p style="margin-top:9px;font-size:14.5px;"><b style="color:var(--ink);">Works at 15 million polygons and above.</b><br>
+      <span class="ph">[one supporting line — final copy TBD]</span></p>
+    </div>
+    <div class="media wide">GIF — scrubbing a 15M+ polygon sculpt in real time<br>Blender's statistics overlay visible, poly count readable<br><b>no stutter, no lag</b></div>
+  </div>
+  <div class="note"><b>Designer:</b> placed <b>high</b> on purpose. By now the visitor has seen how much gets recorded and is silently asking "surely this destroys my framerate?" — answer it while the doubt is forming. No data table; the claim plus one GIF is the whole section, polygon figure as a <b>headline number</b>.</div>
+  <div class="note"><b>On this GIF:</b> it's <b>evidence, not decoration</b> — the poly counter must stay legible. Don't crop it out, shrink it below readable size, or overlay anything on that corner.</div>
+</section>
+
+<!-- ================= 5 · MOVIE MODE ================= -->
+<section class="sec" id="movie">
+  <span class="tag">5 · Movie mode</span>
+  <div class="panel split">
+    <div>
+      <div class="kicker"><span class="ico">🎬</span></div>
+      <h2>Movie mode</h2>
+      <p class="ph" style="margin-top:8px;font-size:14.5px;">[Export what you've made — your sculpt's history as a video.]</p>
+    </div>
+    <div class="media wide">GIF / VIDEO — movie mode output: the sculpt playing back as a film</div>
+  </div>
+  <div class="note"><b>Designer:</b> sells itself as motion — show the exported <b>result</b>, not the export dialog. Worth giving room; it's the feature people will share, which makes it marketing that markets itself.</div>
+</section>
+
+<!-- ---- testimonial B ---- -->
+<div class="quote-strip">
+  <div class="avatar">PHOTO</div>
+  <div>
+    <div class="q ph">"[Short quote — ideally one that mentions movie mode or a specific lane, so it reinforces what was just shown.]"</div>
+    <div class="who ph">[Name] · [studio / credit]</div>
+  </div>
+  <div class="deco">✦</div>
+</div>
+
+<!-- ================= 6 · SAVES WITH FILE ================= -->
+<section class="sec">
+  <span class="tag">6 · Saves with your file</span>
+  <div class="panel split">
+    <div>
+      <div class="kicker"><span class="ico">💾</span></div>
+      <h2>Close it. Reopen it. Still there.</h2>
+    </div>
+    <div class="media wide">GIF — save · quit Blender · reopen the .blend · scrub the same history</div>
+  </div>
+  <div class="note"><b>Designer:</b> one full-width GIF, one short headline. Major differentiator — don't shrink it into a grid tile.</div>
+</section>
+
+<!-- ================= 7 · COMPARISON ================= -->
+<section class="sec" id="compare">
+  <span class="tag">7 · Comparison</span>
+  <div class="panel">
+    <div class="kicker"><span class="ico">☆</span></div>
+    <h2 style="margin-bottom:16px;">The ZBrush feature you've been missing</h2>
+    <div class="g2">
+      <div>
+        <div class="media thin">ZBRUSH UI — its history slider (screengrab)</div>
+        <div class="cmp no" style="margin-top:12px;">
+          <ul class="ph"><li>[Linear history]</li><li>[No per-object history]</li><li>[No masks / vertex paint / edit mode]</li><li>[Can't export to video]</li></ul>
+        </div>
+      </div>
+      <div>
+        <div class="media thin">OUR UI — the same idea in Blender</div>
+        <div class="cmp yes" style="margin-top:12px;">
+          <ul class="ph"><li>[Interactive scrubber]</li><li>[Per-object histories]</li><li>[Brushes, masks, vertex paint &amp; edit mode]</li><li>[Export your sculpt as a video]</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="note"><b>Designer:</b> standard software-comparison block, same as any SaaS site. The two panels must be <b>visually aligned</b> — same crop, scale and slider position — so the eye reads them as equivalents. Does the positioning work in one glance for the large ex-ZBrush audience.</div>
+</section>
+
+<!-- ================= 8 · MADE WITH IT ================= -->
+<section class="sec">
+  <span class="tag">8 · Made with it</span>
+  <div class="panel split">
+    <div>
+      <div class="kicker"><span class="ico">📷</span></div>
+      <h2>Sculpted with Sculpt Undo History</h2>
+    </div>
+    <div class="g3">
+      <div><div class="media sq">SCULPT 1</div><div class="lanecap">[title]</div><div class="lanesub">by [artist]</div></div>
+      <div><div class="media sq">SCULPT 2</div><div class="lanecap">[title]</div><div class="lanesub">by [artist]</div></div>
+      <div><div class="media sq">SCULPT 3</div><div class="lanecap">[title]</div><div class="lanesub">by [artist]</div></div>
+    </div>
+  </div>
+  <div class="note"><b>Designer:</b> real commissioned sculpts. Artwork is the hero; names small. Still the visual half — no testimonial paragraphs.</div>
+</section>
+
+<!-- ================= 9 · FACTS STRIP ================= -->
+<section class="sec">
+  <span class="tag">9 · Facts strip</span>
+  <div class="g4">
+    <div class="card" style="text-align:center;"><b>Blender <span class="ph">[versions]</span></b></div>
+    <div class="card" style="text-align:center;"><b>Saves in your .blend</b></div>
+    <div class="card" style="text-align:center;"><b>Per-object history</b></div>
+    <div class="card" style="text-align:center;"><b>15M+ polygons</b></div>
+  </div>
+</section>
+
+<div class="fold"><b>▼ EVERYTHING BELOW IS THE DETAIL HALF</b> — for readers already interested. Text-heavy is fine here. Nothing below this line should move above it.</div>
+
+<!-- ================= 10 · LIMITS ================= -->
+<section class="sec">
+  <span class="tag">10 · What it doesn't do</span>
+  <div class="panel light">
+    <h2 style="margin-bottom:14px;">Let's be clear</h2>
+    <div class="g2">
+      <div><h3 style="margin-bottom:8px;">It is</h3>
+        <ul class="ph" style="font-size:13.5px;color:var(--ink-2);padding-left:18px;">
+          <li>[a history layer for your sculpting work]</li><li>[a browsable, jump-anywhere timeline]</li><li>[saved with your file]</li></ul></div>
+      <div><h3 style="margin-bottom:8px;">It isn't</h3>
+        <ul class="ph" style="font-size:13.5px;color:var(--ink-2);padding-left:18px;">
+          <li>[a replacement for Ctrl+Z]</li><li>[version control or a scene backup]</li><li>[unlimited — there is a step cap]</li></ul></div>
+    </div>
+  </div>
+  <div class="note"><b>Designer:</b> plain and unglamorous on purpose. Straight talk, not a feature panel.</div>
+</section>
+
+<!-- ================= 11 · WITHOUT / WITH ================= -->
+<section class="sec">
+  <span class="tag">11 · Without / With</span>
+  <div class="g2">
+    <div class="cmp no"><h3 style="margin-bottom:8px;">Without</h3>
+      <ul class="ph"><li>[Blind undo, one step at a time]</li><li>[A hard limit on how far back you can go]</li><li>[No way to compare two versions]</li><li>[History gone when you close Blender]</li></ul></div>
+    <div class="cmp yes"><h3 style="margin-bottom:8px;">With Sculpt Undo History</h3>
+      <ul class="ph"><li>[A visual timeline you can scrub]</li><li>[Your whole session on a slider]</li><li>[Jump to any earlier state instantly]</li><li>[History saved inside the .blend]</li></ul></div>
+  </div>
+  <div class="note"><b>Designer:</b> sits down here with the other reading material, directly before the FAQ — a summary for someone weighing the decision, not a headline. Quiet reference table, not a hero moment.</div>
+</section>
+
+<!-- ================= 12 · FAQ ================= -->
+<section class="sec" id="faq">
+  <span class="tag">12 · FAQ</span>
+  <div class="panel light">
+    <h2 style="margin-bottom:10px;">Questions</h2>
+    <div class="g2">
+      <div>
+        <div class="faq-item"><h3 class="ph">[Does it slow down sculpting?]</h3><p class="ph">[Answer]</p></div>
+        <div class="faq-item"><h3 class="ph">[Which Blender versions?]</h3><p class="ph">[Answer]</p></div>
+        <div class="faq-item"><h3 class="ph">[What exactly gets recorded?]</h3><p class="ph">[Answer]</p></div>
+      </div>
+      <div>
+        <div class="faq-item"><h3 class="ph">[How much memory does it use?]</h3><p class="ph">[Answer]</p></div>
+        <div class="faq-item"><h3 class="ph">[What happens when I share the file?]</h3><p class="ph">[Answer]</p></div>
+        <div class="faq-item"><h3 class="ph">[Refunds / support?]</h3><p class="ph">[Answer]</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ---- testimonial C ---- -->
+<div class="quote-strip">
+  <div class="avatar">PHOTO</div>
+  <div>
+    <div class="q ph">"[Short quote — the last-doubt closer. Trust: reliability, performance, or 'I use it every day'.]"</div>
+    <div class="who ph">[Name] · [studio / credit]</div>
+  </div>
+  <div class="deco">✦</div>
+</div>
+<div class="note"><b>Designer:</b> third and final strip, immediately before pricing — the last nudge before a buying decision.</div>
+
+<!-- ================= 13 · PRICING ================= -->
+<section class="sec" id="pricing">
+  <span class="tag">13 · Pricing</span>
+  <div class="kicker"><span class="spark">✦</span> Pricing</div>
+  <div class="g4" style="margin-top:12px;">
+    <div class="tier"><h3 class="ph">[Tier 1 — Free]</h3><div class="price ph">$XX</div>
+      <ul class="ph"><li>[feature]</li><li>[feature]</li></ul></div>
+    <div class="tier feature"><h3 class="ph">[Tier 2]</h3><div class="price ph">$XX</div>
+      <ul class="ph"><li>[feature]</li><li>[feature]</li></ul></div>
+    <div class="tier"><h3 class="ph">[Tier 3]</h3><div class="price ph">$XX</div>
+      <ul class="ph"><li>[feature]</li><li>[feature]</li></ul></div>
+    <div class="tier"><h3 class="ph">[Tier 4 — Studio]</h3><div class="price ph">$XX</div>
+      <ul class="ph"><li>[seats]</li><li>[commercial]</li></ul></div>
+  </div>
+  <div class="note"><b>Designer:</b> pricing sits near the end, after all the proof — so the <b>Pricing link in the nav must anchor straight here</b>. Tier count, names and prices all still open; build flexible enough to drop to three tiers or two. The highlighted tier is a placeholder for whichever becomes the recommended default.</div>
+</section>
+
+<!-- ================= 14 · CLOSING ================= -->
+<div class="finalcta">
+  <div>
+    <h2>Sculpt with confidence.<br>Undo without limits.</h2>
+    <svg class="underline" viewBox="0 0 190 12" fill="none" style="margin-top:4px;">
+      <path d="M3 8.5C40 3.5 78 2.5 120 5.5C143 7 165 8 187 6" stroke="#E87813" stroke-width="3.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div style="text-align:right;">
+    <p style="margin-bottom:10px;font-size:14.5px;">Ready to scrub your sculpt?</p>
+    <a class="btn" href="#">Get Sculpt Undo History</a>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px;" class="ph">[One-time purchase. Free updates.]</div>
+  </div>
+</div>
+
+<footer>
+  <div>© <span class="ph">[year]</span> Sculpt Undo History · <span class="ph">Made by ARMA / Gureza Studio</span></div>
+  <div class="ph">Docs · Changelog · Support · Superhive listing · Discord · X</div>
+</footer>
+
+<div class="note"><b>Designer:</b> footer carries changelog and contact — visible maintenance is a buying signal in this market.</div>
+
+<!-- ================= HANDOFF ================= -->
+<section class="sec">
+  <span class="tag">Handoff notes</span>
+  <div class="panel light">
+    <h3 style="margin-bottom:10px;">What this file is</h3>
+    <p style="font-size:13.5px;margin-bottom:10px;">A <b>branded skeleton</b> — the wireframe structure with a first pass at the visual direction: Fuzzy Bubbles headers, warm cream ground, orange accent, rounded cards, dark media wells for Blender captures. Treat colours and spacing as a starting point, not a spec.</p>
+    <h3 style="margin-bottom:8px;">Assets still needed</h3>
+    <ul style="font-size:13.5px;color:var(--ink-2);padding-left:18px;">
+      <li><b>Logo / wordmark</b> — the brush-and-swoosh mark; works small, light and dark.</li>
+      <li><b>Marketplace thumbnail</b> — legible at ~250px on a phone; slider UI over a recognizable sculpt.</li>
+      <li><b>Interactive scrubber</b> — frame/chrome, drag handle, region buttons, "drag me" cue. We supply WebP frames.</li>
+      <li><b>Doodle set</b> — sparkles, underline swooshes, arrows with handwritten labels, in the style of the mockups.</li>
+      <li><b>GIF frame treatment</b> — a consistent frame/shadow/corner style for the 12+ media wells.</li>
+      <li><b>Social card</b> (Open Graph) for Reddit / X / Discord previews.</li>
+      <li><b>Mobile layouts</b> for all 14 blocks.</li>
+    </ul>
+    <p style="font-size:13.5px;margin-top:10px;"><b>We provide:</b> trailer, all GIFs, WebP frame sets, screenshots, final pricing and copy. <b>You provide:</b> layout, identity, visual system.</p>
+  </div>
+</section>
+
+</div>
+
+<script>
+  var cb = document.getElementById('extras');
+  cb.addEventListener('change', function () {
+    document.body.classList.toggle('hide-extras', !cb.checked);
+  });
+</script>
+</body>
+</html>
