@@ -128,12 +128,12 @@
   .scrubber.is-active > img{filter:brightness(1);}
   .scrubber::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.12);
     border-radius:inherit;pointer-events:none;}
-  .scrubber-hint{position:absolute;z-index:2;top:32%;left:50%;transform:translateX(-50%);
-    padding:13px 22px;background:#fff;color:#171513;border:1px solid rgba(42,39,36,.12);
-    border-radius:999px;font-size:16px;font-weight:750;white-space:nowrap;
+  .scrubber-hint{position:absolute;z-index:2;top:50%;left:50%;transform:translate(-50%,-50%);
+    padding:10.4px 17.6px;background:#fff;color:#171513;border:1px solid rgba(42,39,36,.12);
+    border-radius:999px;font-size:12.8px;font-weight:750;white-space:nowrap;
     box-shadow:0 5px 18px rgba(0,0,0,.25);
     transition:opacity .18s ease,transform .18s ease;pointer-events:none;}
-  .scrubber.is-active .scrubber-hint{opacity:0;transform:translate(-50%,-5px);}
+  .scrubber.is-active .scrubber-hint{opacity:0;transform:translate(-50%,-60%);}
   /* small paired GIFs for the face sets / masks / visibility group */
   .media.mini{aspect-ratio:16/9;height:auto;border-radius:10px;font-size:11px;padding:10px;}
   /* "blend" wells sit on the cream ground, for transparent GIFs with no dark frame */
@@ -260,7 +260,7 @@
     .featrow .new{font-size:10px;padding:2px 8px;}
     .feature-pair{gap:16px;}
     .feature-card-copy{padding:20px;}
-    .scrubber-hint{top:30%;font-size:13.5px;padding:10px 16px;}
+    .scrubber-hint{font-size:10.8px;padding:8px 12.8px;}
   }
   @media (max-width:380px){
     .featrow{grid-template-columns:1fr;}
@@ -781,6 +781,7 @@
     var scrubberFrameCount = 60;
     var scrubberIndex = 59;
     var scrubberPreloads = [];
+    var scrubberPromptTimer = null;
 
     function scrubberFrameUrl(index) {
       return 'media/anime-scrubber/frame-' + String(index).padStart(2, '0') + '.webp';
@@ -802,25 +803,43 @@
       setScrubberFrame(Math.round(position * (scrubberFrameCount - 1)));
     }
 
-    scrubber.addEventListener('pointerenter', function () {
+    function activateScrubber() {
+      if (scrubberPromptTimer) window.clearTimeout(scrubberPromptTimer);
+      scrubberPromptTimer = null;
       scrubber.classList.add('is-active');
+    }
+
+    function scheduleScrubberPrompt() {
+      if (scrubberPromptTimer) window.clearTimeout(scrubberPromptTimer);
+      scrubberPromptTimer = window.setTimeout(function () {
+        scrubber.classList.remove('is-active');
+        scrubberPromptTimer = null;
+      }, 3000);
+    }
+
+    scrubber.addEventListener('pointerenter', function () {
+      activateScrubber();
     });
     scrubber.addEventListener('pointerleave', function (event) {
-      if (!scrubber.hasPointerCapture(event.pointerId)) scrubber.classList.remove('is-active');
+      if (!scrubber.hasPointerCapture(event.pointerId)) scheduleScrubberPrompt();
     });
     scrubber.addEventListener('pointermove', function (event) {
       if (event.pointerType === 'mouse' || scrubber.hasPointerCapture(event.pointerId)) {
-        scrubber.classList.add('is-active');
+        activateScrubber();
         setScrubberFromPointer(event);
       }
     });
     scrubber.addEventListener('pointerdown', function (event) {
       scrubber.setPointerCapture(event.pointerId);
-      scrubber.classList.add('is-active');
+      activateScrubber();
       setScrubberFromPointer(event);
     });
     scrubber.addEventListener('pointerup', function (event) {
       if (scrubber.hasPointerCapture(event.pointerId)) scrubber.releasePointerCapture(event.pointerId);
+      if (event.pointerType !== 'mouse') scheduleScrubberPrompt();
+    });
+    scrubber.addEventListener('pointercancel', function () {
+      scheduleScrubberPrompt();
     });
     scrubber.addEventListener('keydown', function (event) {
       var nextIndex = scrubberIndex;
@@ -830,8 +849,9 @@
       else if (event.key === 'End') nextIndex = scrubberFrameCount - 1;
       else return;
       event.preventDefault();
-      scrubber.classList.add('is-active');
+      activateScrubber();
       setScrubberFrame(nextIndex);
+      scheduleScrubberPrompt();
     });
 
     function preloadScrubberFrames() {
