@@ -1,6 +1,9 @@
 # Raw video sources — kept on disk, out of git (large binaries)
 videos/
 
+# Branding sources and unused exports — kept locally, excluded from the hosted site
+branding-unused/
+
 # macOS
 .DS_Store
 

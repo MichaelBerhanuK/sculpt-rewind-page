@@ -10,6 +10,18 @@
     src: url('branding/FuzzyBubbles-Bold.ttf') format('truetype');
     font-weight: 700; font-display: swap;
   }
+  @font-face {
+    /* static face, but declared across the 400-700 range so the browser uses it for
+       bold headings instead of synthesising a fake bold from the regular weight */
+    font-family: 'SculptHand';
+    src: url('branding/SculptHand-Regular.otf') format('opentype');
+    font-weight: 400 700; font-display: swap;
+  }
+  @font-face {
+    font-family: 'DynaPuff';
+    src: url('branding/DynaPuff-VariableFont_wdth,wght.ttf') format('truetype');
+    font-weight: 400 700; font-display: swap;
+  }
 
   :root{
     /* matched to the background baked into the hero GIF (#FBF7F0) so it blends seamlessly.
@@ -27,7 +39,26 @@
     --dark-2:#2E2D2B;
     --border:rgba(42,39,36,.10);
     --radius:18px;
+    --display-font:'DynaPuff',ui-rounded,system-ui,sans-serif;
   }
+
+  body.font-fuzzy{--display-font:'FuzzyBubbles',ui-rounded,system-ui,sans-serif;}
+  body.font-sculpthand{--display-font:'SculptHand',ui-rounded,system-ui,sans-serif;--hand-stroke:.4px;}
+  /* Sculpt Hand ships as a single regular weight, so display type set in it reads lighter
+     than DynaPuff or Fuzzy Bubbles. A hairline stroke in the text colour lands about halfway
+     back to their weight without the smeared counters of a synthesised bold.
+     Dial it with --hand-stroke: .3px is barely there, .6px starts to fill in the letterforms. */
+  body.font-sculpthand h1,
+  body.font-sculpthand h2,
+  body.font-sculpthand h3,
+  body.font-sculpthand .brandfont,
+  body.font-sculpthand .kicker,
+  body.font-sculpthand .hand,
+  body.font-sculpthand .tagline,
+  body.font-sculpthand .performance-stat,
+  body.font-sculpthand .tier .price{-webkit-text-stroke:var(--hand-stroke) currentColor;}
+  /* the feature row keeps its own face, so it keeps its own weight too */
+  body.font-sculpthand .featrow h3{-webkit-text-stroke:0;}
 
   *{margin:0;padding:0;box-sizing:border-box;}
   body{
@@ -37,7 +68,7 @@
   }
   .page{max-width:1080px;margin:0 auto;padding:0 24px 60px;}
 
-  h1,h2,h3,.brandfont{font-family:'FuzzyBubbles',ui-rounded,system-ui,sans-serif;font-weight:700;letter-spacing:.005em;}
+  h1,h2,h3,.brandfont{font-family:var(--display-font);font-weight:700;letter-spacing:.005em;}
   h1{font-size:52px;line-height:1.12;}
   h2{font-size:30px;line-height:1.2;}
   h3{font-size:19px;}
@@ -49,7 +80,7 @@
   .masthead{text-align:center;padding:60px 0 0;}
   #see{margin-top:0;}   /* hero sits tight under the logo */
   .masthead img{width:min(474px,82vw);height:auto;display:block;margin:0 auto;}
-  .masthead .tagline{font-family:'FuzzyBubbles',ui-rounded,system-ui,sans-serif;font-weight:700;
+  .masthead .tagline{font-family:var(--display-font);font-weight:400;
     font-size:clamp(17px,2.4vw,22px);color:var(--ink-2);margin:4px 0 18px;}
 
   .btn{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;
@@ -63,12 +94,12 @@
   .sec{margin-top:26px;}
   .panel{background:var(--cream-2);border-radius:var(--radius);padding:26px;}
   .panel.light{background:var(--card);border:1px solid var(--border);}
-  .kicker{display:inline-flex;align-items:center;gap:7px;font-family:'FuzzyBubbles',system-ui,sans-serif;
+  .kicker{display:inline-flex;align-items:center;gap:7px;font-family:var(--display-font);
     font-size:20px;color:var(--ink);margin-bottom:4px;}
   .kicker .ico{width:34px;height:34px;border-radius:10px;background:var(--orange-soft);
     display:flex;align-items:center;justify-content:center;font-size:16px;}
   .spark{color:var(--orange);font-size:15px;}
-  .hand{font-family:'FuzzyBubbles',system-ui,sans-serif;color:var(--orange);font-size:15px;}
+  .hand{font-family:var(--display-font);color:var(--orange);font-size:15px;}
   .underline{display:block;width:190px;height:12px;margin-top:2px;}
 
   /* ---------- media placeholders ---------- */
@@ -97,6 +128,37 @@
   .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
   .g5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
   .split{display:grid;grid-template-columns:290px 1fr;gap:26px;align-items:center;}
+  /* primary + supporting feature rhythm: one clear hero, then two compact proofs */
+  .feature-primary{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(270px,.75fr);
+    gap:24px;align-items:stretch;padding:22px;}
+  .feature-primary > .media{grid-column:1;grid-row:1;}
+  .feature-primary .feature-copy{grid-column:2;grid-row:1;display:flex;flex-direction:column;
+    justify-content:center;padding:10px 8px 10px 2px;}
+  .feature-primary .feature-copy p{font-size:15px;margin-top:10px;}
+  .feature-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px;}
+  .feature-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    overflow:hidden;box-shadow:0 8px 24px rgba(42,39,36,.035);}
+  .feature-card .media{border:0;border-bottom:1px solid rgba(255,255,255,.12);border-radius:0;}
+  .feature-card-copy{padding:18px 20px 20px;}
+  .feature-card-copy .kicker{margin-bottom:1px;}
+  .feature-card-copy h3{font-size:22px;line-height:1.2;}
+  .feature-card-copy p{font-size:14.5px;margin-top:7px;max-width:46ch;}
+
+  /* the later proof blocks should not repeat the same pale split-card pattern */
+  .movie-card{background:linear-gradient(135deg,var(--orange-soft),var(--cream-2));
+    border:1px solid rgba(232,120,19,.12);}
+  .movie-card .movie-label{font-size:12px;font-weight:750;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--orange-dk);margin-bottom:8px;}
+  .performance-card{display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:center;
+    background:var(--dark);color:#fff;padding:24px;}
+  .performance-card .hand{color:#f3a45c;}
+  .performance-card h2{color:#fff;}
+  .performance-card p{color:#c9c3bc;}
+  .performance-card p b{color:#fff !important;}
+  .performance-stat{font-family:var(--display-font);font-size:64px;
+    line-height:.95;color:#f08a2a;margin:14px 0 8px;}
+  .performance-stat sup{font-family:ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
+    font-size:.32em;vertical-align:top;position:relative;top:.12em;margin-left:2px;}
   /* lane rows: equal-ish halves so the GIF reads well on either side */
   /* text is ALWAYS first in the DOM, so it always stacks on top when the row collapses.
      Reversed rows swap sides with grid placement, never with source order. */
@@ -116,11 +178,16 @@
     .g2,.split,.lanerow,.lanerow.rev{grid-template-columns:1fr;}
     .lanerow.rev > .txt,.lanerow.rev > .media{grid-column:1;grid-row:auto;}
     .g5{grid-template-columns:repeat(2,1fr);}
+    .feature-primary{grid-template-columns:1fr;padding:18px;gap:14px;}
+    .feature-primary .feature-copy{grid-column:1;grid-row:1;padding:0;}
+    .feature-primary > .media{grid-column:1;grid-row:2;}
+    .performance-card{grid-template-columns:1fr;}
+    .performance-stat{font-size:52px;}
     h1{font-size:38px;} h2{font-size:25px;}
   }
   /* feature groups stay side-by-side the longest; they are the whole point of the section */
   @media (max-width:560px){
-    .g3,.g4{grid-template-columns:1fr;}
+    .g3,.g4,.feature-pair{grid-template-columns:1fr;}
   }
 
   .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;}
@@ -133,7 +200,7 @@
   .featrow > div{padding:0 14px;text-align:center;border-right:1px solid var(--border);}
   .featrow > div:last-child{border-right:none;}
   .featrow .ico{font-size:24px;color:var(--orange);margin-bottom:8px;}
-  .featrow h3{font-size:14.5px;margin-bottom:5px;}
+  .featrow h3{font-family:'FuzzyBubbles',ui-rounded,system-ui,sans-serif;font-size:14.5px;margin-bottom:5px;}
   .featrow p{font-size:12px;line-height:1.5;}
   /* holds five across for as long as possible (tall/narrow windows are the default view):
      padding and type tighten in steps, and it only drops to 3-up below 560px, 1-up below 380px.
@@ -191,7 +258,7 @@
   /* ---------- pricing ---------- */
   .tier{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
   .tier.feature{border:2px solid var(--orange);box-shadow:0 4px 0 var(--orange-soft);}
-  .tier .price{font-family:'FuzzyBubbles',system-ui,sans-serif;font-size:32px;color:var(--ink);margin:6px 0 10px;}
+  .tier .price{font-family:var(--display-font);font-size:32px;color:var(--ink);margin:6px 0 10px;}
   .tier ul{list-style:none;font-size:13px;color:var(--ink-2);}
   .tier li{padding:4px 0 4px 18px;position:relative;}
   .tier li:before{content:"✓";position:absolute;left:0;color:var(--orange);font-weight:700;}
@@ -218,22 +285,39 @@
     display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);}
 
   /* ---------- designer extras ---------- */
-  #extras-bar{position:fixed;bottom:14px;right:14px;z-index:99;background:#fff;border:1px solid var(--border);
-    border-radius:10px;padding:9px 13px;font-size:12.5px;box-shadow:0 3px 12px rgba(0,0,0,.10);
-    display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+  #extras-bar{position:fixed;bottom:14px;right:14px;z-index:99;width:238px;max-width:calc(100vw - 28px);
+    background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 13px;font-size:12.5px;
+    box-shadow:0 3px 12px rgba(0,0,0,.10);display:grid;gap:9px;user-select:none;}
+  #extras-bar label{display:flex;align-items:center;gap:8px;cursor:pointer;}
+  #extras-bar .select-control{display:grid;grid-template-columns:1fr;gap:5px;cursor:default;}
+  #extras-bar .select-control span{font-weight:650;color:var(--ink);}
+  #extras-bar select{width:100%;font:inherit;color:var(--ink);background:var(--cream);border:1px solid var(--border);
+    border-radius:8px;padding:6px 28px 6px 8px;cursor:pointer;}
   #extras-bar input{width:15px;height:15px;cursor:pointer;accent-color:var(--orange);}
   .note{background:#FFF8E6;border-left:3px solid #E0A800;padding:9px 12px;font-size:12.5px;
     color:#5A4A10;margin:12px 0;border-radius:0 8px 8px 0;}
   .note b{color:#3D3208;}
   .tag{display:inline-block;background:var(--orange-soft);color:var(--orange-dk);font-size:10px;
     font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border-radius:5px;margin-bottom:9px;}
-  body.hide-extras .note,body.hide-extras .tag,body.hide-extras .fold{display:none !important;}
+  body.hide-extras .note,body.hide-extras .tag,body.hide-extras .fold,body.hide-extras .handoff{display:none !important;}
+  body.hide-testimonials .quote-strip{display:none !important;}
   .fold{background:var(--ink);color:#fff;padding:13px 22px;border-radius:12px;font-size:12.5px;margin-top:26px;}
 </style>
 </head>
 <body class="hide-extras">
 
-<label id="extras-bar"><input type="checkbox" id="extras"> Show designer notes</label>
+<div id="extras-bar" aria-label="Preview controls">
+  <label class="select-control" for="font-picker">
+    <span>Main title font</span>
+    <select id="font-picker">
+      <option value="dynapuff">DynaPuff</option>
+      <option value="fuzzy">Fuzzy Bubbles</option>
+      <option value="sculpthand">Sculpt Hand</option>
+    </select>
+  </label>
+  <label><input type="checkbox" id="extras"> Show designer notes</label>
+  <label><input type="checkbox" id="testimonials" checked> Show testimonials</label>
+</div>
 
 <div class="page">
 
@@ -272,13 +356,10 @@
     <svg class="underline" style="margin:6px auto 0;" viewBox="0 0 190 12" fill="none">
       <path d="M3 8.5C40 3.5 78 2.5 120 5.5C143 7 165 8 187 6" stroke="#E87813" stroke-width="3.5" stroke-linecap="round"/>
     </svg>
-    <p class="lead ph" style="margin:12px auto 0;">[One line. Ten words maximum.]</p>
   </div>
 
   <div style="text-align:center;margin-top:34px;">
-    <div class="hand">✦ Don't take our word for it ✦</div>
-    <h2 style="margin-top:2px;">Try it right here.</h2>
-    <p class="lead ph" style="margin:6px auto 0;">[Drag the slider and scrub a real sculpt. No install needed.]</p>
+    <h2>Hover your mouse below.</h2>
   </div>
 
   <div class="media hero" style="margin-top:16px;">
@@ -302,44 +383,40 @@
 </div>
 <div class="note"><b>Designer:</b> <b>interstitial testimonial pattern</b>: a thin single-quote band recurring three times down the page (here, mid-page, before pricing). Not a section: a breath between sections. Keep all three visually identical and lighter than surrounding blocks. One quote each, never a carousel.</div>
 
-<!-- ================= 2 · PER-OBJECT HISTORY ================= -->
+<!-- ================= 2–4 · HISTORY EVERYWHERE ================= -->
 <section class="sec">
-  <span class="tag">2 · Per-object history</span>
-  <div class="panel split">
-    <div>
+  <span class="tag">2–4 · History everywhere</span>
+
+  <div class="panel feature-primary">
+    <div class="feature-copy">
       <div class="kicker"><span class="ico">🗂</span></div>
       <h2>Every object keeps its own undo history.</h2>
+      <p>Switch objects without giving up your place. Each mesh carries a separate visual timeline, ready whenever you come back.</p>
     </div>
     <div class="media wide">GIF: several objects in one scene, each scrubbed independently</div>
   </div>
-  <div class="note"><b>Designer:</b> first feature after the hero, and its own full-width beat. The GIF must make it obvious that each object carries a separate timeline: scrub one, the others stay put.</div>
-</section>
 
-<!-- ================= 3 · VERTEX PAINT ================= -->
-<section class="sec">
-  <span class="tag">3 · Vertex paint</span>
-  <div class="panel split">
-    <div>
-      <div class="kicker"><span class="ico">🎨</span></div>
-      <h2>Vertex paint</h2>
-      <p class="ph" style="margin-top:8px;font-size:14.5px;">[one short line]</p>
-    </div>
-    <div class="media wide">GIF: vertex paint strokes scrubbed back and forth on the timeline</div>
-  </div>
-  <div class="note"><b>Designer:</b> same card as per-object history above (text left, GIF right). Sections 2, 3 and 4 are one visual run of identical cards.</div>
-</section>
+  <div class="feature-pair">
+    <article class="feature-card">
+      <div class="media wide">GIF: vertex paint strokes scrubbed back and forth on the timeline</div>
+      <div class="feature-card-copy">
+        <div class="kicker"><span class="ico">🎨</span></div>
+        <h3>Vertex paint</h3>
+        <p>Scrub through paint strokes with the same timeline you use for sculpting.</p>
+      </div>
+    </article>
 
-<!-- ================= 4 · EDIT MODE ================= -->
-<section class="sec">
-  <span class="tag">4 · Edit Mode</span>
-  <div class="panel split">
-    <div>
-      <div class="kicker"><span class="ico">📐</span></div>
-      <h2>Edit Mode changes</h2>
-      <p class="ph" style="margin-top:8px;font-size:14.5px;">[one short line]</p>
-    </div>
-    <div class="media wide">GIF: Edit Mode changes scrubbed back and forth on the timeline</div>
+    <article class="feature-card">
+      <div class="media wide">GIF: Edit Mode changes scrubbed back and forth on the timeline</div>
+      <div class="feature-card-copy">
+        <div class="kicker"><span class="ico">📐</span></div>
+        <h3>Edit Mode changes</h3>
+        <p>Revisit vertex moves and other Edit Mode changes without stepping backward blindly.</p>
+      </div>
+    </article>
   </div>
+
+  <div class="note"><b>Designer:</b> per-object history remains the primary differentiator. Vertex paint and Edit Mode are supporting proofs, grouped into a compact pair so the page does not repeat three oversized cards with the same visual weight.</div>
 </section>
 
 <!-- ================= 5 · MORPH BRUSH ================= -->
@@ -392,11 +469,12 @@
 <!-- ================= 6 · MOVIE MODE ================= -->
 <section class="sec" id="movie">
   <span class="tag">6 · Movie mode</span>
-  <div class="panel split">
+  <div class="panel split movie-card">
     <div>
+      <div class="movie-label">From timeline to playback</div>
       <div class="kicker"><span class="ico">🎬</span></div>
       <h2>Movie mode</h2>
-      <p class="ph" style="margin-top:8px;font-size:14.5px;">[Export what you've made: your sculpt's history as a video.]</p>
+      <p style="margin-top:8px;font-size:14.5px;">Turn your sculpt&rsquo;s history into a video you can share.</p>
     </div>
     <div class="media wide">GIF / VIDEO: movie mode output, the sculpt playing back as a film</div>
   </div>
@@ -431,12 +509,12 @@
 <!-- ================= 8 · PERFORMANCE ================= -->
 <section class="sec">
   <span class="tag">8 · Performance assurance</span>
-  <div class="panel split">
+  <div class="panel performance-card">
     <div>
       <div class="hand">✦ It won't slow you down ✦</div>
-      <h2 style="margin-top:4px;">Tested on meshes with millions of polygons.</h2>
-      <p style="margin-top:9px;font-size:14.5px;"><b style="color:var(--ink);">Works at 15 million polygons and above.</b><br>
-      <span class="ph">[one supporting line, final copy TBD]</span></p>
+      <div class="performance-stat">15M+<sup>*</sup></div>
+      <h2>polygons, still scrubbable.</h2>
+      <p style="margin-top:10px;font-size:14.5px;">* Tested on an RTX 4060 PC.</p>
     </div>
     <div class="media wide"><div>GIF: scrubbing a 15M+ polygon sculpt in real time<br>Blender's statistics overlay visible, poly count readable<br><b>no stutter, no lag</b></div></div>
   </div>
@@ -609,7 +687,7 @@
 <div class="note"><b>Designer:</b> footer carries changelog and contact. Visible maintenance is a buying signal in this market.</div>
 
 <!-- ================= HANDOFF ================= -->
-<section class="sec">
+<section class="sec handoff">
   <span class="tag">Handoff notes</span>
   <div class="panel light">
     <h3 style="margin-bottom:10px;">What this file is</h3>
@@ -635,6 +713,19 @@
   var cb = document.getElementById('extras');
   cb.addEventListener('change', function () {
     document.body.classList.toggle('hide-extras', !cb.checked);
+  });
+
+  var fontPicker = document.getElementById('font-picker');
+  var fontClasses = {dynapuff: '', fuzzy: 'font-fuzzy', sculpthand: 'font-sculpthand'};
+  fontPicker.addEventListener('change', function () {
+    document.body.classList.remove('font-fuzzy', 'font-sculpthand');
+    var cls = fontClasses[fontPicker.value];
+    if (cls) document.body.classList.add(cls);
+  });
+
+  var testimonialsCb = document.getElementById('testimonials');
+  testimonialsCb.addEventListener('change', function () {
+    document.body.classList.toggle('hide-testimonials', !testimonialsCb.checked);
   });
 </script>
 </body>
