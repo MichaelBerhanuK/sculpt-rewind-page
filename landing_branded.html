@@ -180,9 +180,14 @@
     .g2,.split,.lanerow,.lanerow.rev{grid-template-columns:1fr;}
     .lanerow.rev > .txt,.lanerow.rev > .media{grid-column:1;grid-row:auto;}
     .g5{grid-template-columns:repeat(2,1fr);}
-    .feature-primary{grid-template-columns:1fr;padding:18px;gap:14px;}
-    .feature-primary .feature-copy{grid-column:1;grid-row:1;padding:0;}
-    .feature-primary > .media{grid-column:1;grid-row:2;}
+    /* On phones/tablets, use the same media-first card anatomy for all three
+       history examples. Desktop keeps the more editorial split layout. */
+    .feature-primary{grid-template-columns:1fr;padding:0;gap:0;overflow:hidden;
+      background:var(--card);border:1px solid var(--border);
+      box-shadow:0 8px 24px rgba(42,39,36,.035);}
+    .feature-primary .feature-copy{grid-column:1;grid-row:2;padding:20px;}
+    .feature-primary > .media{grid-column:1;grid-row:1;border:0;
+      border-bottom:1px solid rgba(255,255,255,.12);border-radius:0;}
     .performance-card{grid-template-columns:1fr;}
     .performance-stat{font-size:52px;}
     h1{font-size:38px;} h2{font-size:25px;}
@@ -227,12 +232,18 @@
     .featrow p{font-size:10px;}
   }
   @media (max-width:560px){
-    .featrow{grid-template-columns:repeat(3,1fr);gap:22px 0;padding:22px 8px;}
-    .featrow > div{padding:0 10px;border-right:none;}
-    .featrow .ico{font-size:24px;margin-bottom:8px;}
-    .featrow h3{font-size:14px;}
-    .featrow p{font-size:12px;line-height:1.5;}
+    /* Five narrow columns become five compact, scannable rows on mobile. */
+    .featrow{grid-template-columns:1fr;gap:0;padding:7px 14px;}
+    .featrow > div{display:grid;grid-template-columns:38px minmax(0,1fr);
+      grid-template-areas:"icon title" "icon copy";column-gap:10px;row-gap:2px;
+      padding:14px 2px;text-align:left;border-right:0;border-bottom:1px solid var(--border);}
+    .featrow > div:last-child{border-bottom:0;}
+    .featrow .ico{grid-area:icon;font-size:23px;line-height:1.2;margin:1px 0 0;text-align:center;}
+    .featrow h3{grid-area:title;font-size:14.5px;line-height:1.25;margin:0;}
+    .featrow p{grid-area:copy;font-size:12.5px;line-height:1.45;max-width:none;}
     .featrow .new{font-size:10px;padding:2px 8px;}
+    .feature-pair{gap:16px;}
+    .feature-card-copy{padding:20px;}
   }
   @media (max-width:380px){
     .featrow{grid-template-columns:1fr;}
@@ -296,6 +307,14 @@
   #extras-bar select{width:100%;font:inherit;color:var(--ink);background:var(--cream);border:1px solid var(--border);
     border-radius:8px;padding:6px 28px 6px 8px;cursor:pointer;}
   #extras-bar input{width:15px;height:15px;cursor:pointer;accent-color:var(--orange);}
+  @media (max-width:560px){
+    /* Preview controls remain available without covering the page content. */
+    #extras-bar{position:relative;bottom:auto;right:auto;width:auto;max-width:none;
+      margin:10px 16px 0;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;
+      box-shadow:none;}
+    #extras-bar .select-control{grid-column:1/-1;}
+    #extras-bar label:not(.select-control){font-size:12px;white-space:nowrap;}
+  }
   .note{background:#FFF8E6;border-left:3px solid #E0A800;padding:9px 12px;font-size:12.5px;
     color:#5A4A10;margin:12px 0;border-radius:0 8px 8px 0;}
   .note b{color:#3D3208;}
