@@ -118,6 +118,29 @@
   /* the top "how it works" GIF: sits on the cream ground at its own ratio, no frame */
   .quickgif{display:flex;justify-content:center;margin:0 0 22px;}
   .quickgif img{width:min(760px,100%);height:auto;display:block;}
+  /* interactive history scrubber */
+  .scrubber{position:relative;aspect-ratio:4/3;margin-top:16px;overflow:hidden;
+    border-radius:16px;background:var(--dark);cursor:ew-resize;touch-action:pan-y;
+    user-select:none;-webkit-user-select:none;box-shadow:0 14px 34px rgba(42,39,36,.15);outline:none;}
+  .scrubber:focus-visible{box-shadow:0 14px 34px rgba(42,39,36,.15),0 0 0 4px rgba(232,120,19,.32);}
+  .scrubber > img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;}
+  .scrubber::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.12);
+    border-radius:inherit;pointer-events:none;}
+  .scrubber-hint,.scrubber-count{position:absolute;z-index:2;background:rgba(36,35,34,.78);
+    color:#fff;border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(6px);}
+  .scrubber-hint{top:14px;left:50%;transform:translateX(-50%);padding:7px 12px;
+    border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;
+    transition:opacity .18s ease,transform .18s ease;pointer-events:none;}
+  .scrubber.is-active .scrubber-hint{opacity:0;transform:translate(-50%,-5px);}
+  .scrubber-count{right:16px;bottom:34px;padding:4px 8px;border-radius:7px;font-size:10.5px;
+    font-variant-numeric:tabular-nums;pointer-events:none;}
+  .scrubber-track{position:absolute;z-index:2;left:18px;right:18px;bottom:18px;height:6px;
+    border-radius:999px;background:rgba(255,255,255,.45);box-shadow:0 1px 4px rgba(0,0,0,.25);
+    pointer-events:none;}
+  .scrubber-progress{position:absolute;inset:0 auto 0 0;width:100%;border-radius:inherit;background:var(--orange);}
+  .scrubber-handle{position:absolute;left:100%;top:50%;width:22px;height:22px;border:4px solid #fff;
+    border-radius:50%;background:var(--orange);box-shadow:0 2px 8px rgba(0,0,0,.38);
+    transform:translate(-50%,-50%);}
   /* small paired GIFs for the face sets / masks / visibility group */
   .media.mini{aspect-ratio:16/9;height:auto;border-radius:10px;font-size:11px;padding:10px;}
   /* "blend" wells sit on the cream ground, for transparent GIFs with no dark frame */
@@ -244,6 +267,9 @@
     .featrow .new{font-size:10px;padding:2px 8px;}
     .feature-pair{gap:16px;}
     .feature-card-copy{padding:20px;}
+    .scrubber-hint{top:10px;font-size:11px;padding:6px 10px;}
+    .scrubber-track{left:12px;right:12px;bottom:13px;}
+    .scrubber-count{right:12px;bottom:29px;}
   }
   @media (max-width:380px){
     .featrow{grid-template-columns:1fr;}
@@ -391,11 +417,17 @@
     <h2>Hover your mouse below.</h2>
   </div>
 
-  <div class="media hero" style="margin-top:16px;">
-    <div><b>INTERACTIVE SCRUBBER: PLACEHOLDER</b><br><br>
-    a real draggable slider running over one WebP frame sequence<br>
-    the visitor drags and watches the sculpt build up / rewind<br><br>
-    on-screen prompt: <i>"Drag the slider →"</i></div>
+  <div class="scrubber" id="interactive-scrubber" tabindex="0" role="slider"
+    aria-label="Scrub through the Sculpt Rewind timeline" aria-valuemin="0" aria-valuemax="59"
+    aria-valuenow="59" aria-valuetext="Frame 60 of 60">
+    <img id="scrubber-frame" src="media/anime-scrubber/frame-59.webp"
+      alt="A Blender sculpt progressing from a base sphere to a finished character" draggable="false">
+    <div class="scrubber-hint" id="scrubber-hint">Move across to scrub ↔</div>
+    <div class="scrubber-count" id="scrubber-count" aria-hidden="true">60 / 60</div>
+    <div class="scrubber-track" aria-hidden="true">
+      <div class="scrubber-progress" id="scrubber-progress"></div>
+      <div class="scrubber-handle" id="scrubber-handle"></div>
+    </div>
   </div>
 
   <div class="note"><b>Designer:</b> the centrepiece and the one genuinely interactive element on the page. A visitor drags and watches a character build up or rewind: the actual <b>feel</b> of scrubbing before buying. Needs an obvious grab handle, a "drag me" cue on first load, and touch support. For now it runs on <b>a single WebP sequence</b>: no region buttons, no set switching. <b>No buy buttons in the hero</b>; the marketplace supplies its own purchase sidebar.</div>
@@ -756,6 +788,84 @@
   testimonialsCb.addEventListener('change', function () {
     document.body.classList.toggle('hide-testimonials', !testimonialsCb.checked);
   });
+
+  var scrubber = document.getElementById('interactive-scrubber');
+  if (scrubber) {
+    var scrubberFrame = document.getElementById('scrubber-frame');
+    var scrubberProgress = document.getElementById('scrubber-progress');
+    var scrubberHandle = document.getElementById('scrubber-handle');
+    var scrubberCount = document.getElementById('scrubber-count');
+    var scrubberFrameCount = 60;
+    var scrubberIndex = 59;
+    var scrubberPreloads = [];
+
+    function scrubberFrameUrl(index) {
+      return 'media/anime-scrubber/frame-' + String(index).padStart(2, '0') + '.webp';
+    }
+
+    function setScrubberFrame(index) {
+      index = Math.max(0, Math.min(scrubberFrameCount - 1, index));
+      if (index !== scrubberIndex) {
+        scrubberFrame.src = scrubberFrameUrl(index);
+        scrubberIndex = index;
+      }
+      var percent = (index / (scrubberFrameCount - 1)) * 100;
+      scrubberProgress.style.width = percent + '%';
+      scrubberHandle.style.left = percent + '%';
+      scrubberCount.textContent = (index + 1) + ' / ' + scrubberFrameCount;
+      scrubber.setAttribute('aria-valuenow', String(index));
+      scrubber.setAttribute('aria-valuetext', 'Frame ' + (index + 1) + ' of ' + scrubberFrameCount);
+    }
+
+    function setScrubberFromPointer(event) {
+      var bounds = scrubber.getBoundingClientRect();
+      var position = (event.clientX - bounds.left) / bounds.width;
+      setScrubberFrame(Math.round(position * (scrubberFrameCount - 1)));
+    }
+
+    scrubber.addEventListener('pointerenter', function () {
+      scrubber.classList.add('is-active');
+    });
+    scrubber.addEventListener('pointerleave', function (event) {
+      if (!scrubber.hasPointerCapture(event.pointerId)) scrubber.classList.remove('is-active');
+    });
+    scrubber.addEventListener('pointermove', function (event) {
+      if (event.pointerType === 'mouse' || scrubber.hasPointerCapture(event.pointerId)) {
+        scrubber.classList.add('is-active');
+        setScrubberFromPointer(event);
+      }
+    });
+    scrubber.addEventListener('pointerdown', function (event) {
+      scrubber.setPointerCapture(event.pointerId);
+      scrubber.classList.add('is-active');
+      setScrubberFromPointer(event);
+    });
+    scrubber.addEventListener('pointerup', function (event) {
+      if (scrubber.hasPointerCapture(event.pointerId)) scrubber.releasePointerCapture(event.pointerId);
+    });
+    scrubber.addEventListener('keydown', function (event) {
+      var nextIndex = scrubberIndex;
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') nextIndex -= 1;
+      else if (event.key === 'ArrowRight' || event.key === 'ArrowUp') nextIndex += 1;
+      else if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = scrubberFrameCount - 1;
+      else return;
+      event.preventDefault();
+      scrubber.classList.add('is-active');
+      setScrubberFrame(nextIndex);
+    });
+
+    function preloadScrubberFrames() {
+      for (var i = 0; i < scrubberFrameCount; i += 1) {
+        var image = new Image();
+        image.decoding = 'async';
+        image.src = scrubberFrameUrl(i);
+        scrubberPreloads.push(image);
+      }
+    }
+    if ('requestIdleCallback' in window) window.requestIdleCallback(preloadScrubberFrames);
+    else window.setTimeout(preloadScrubberFrames, 300);
+  }
 </script>
 </body>
 </html>
