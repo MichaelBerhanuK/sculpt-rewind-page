@@ -171,7 +171,7 @@
   .movie-card .movie-label{font-size:12px;font-weight:750;letter-spacing:.1em;text-transform:uppercase;
     color:var(--orange-dk);margin-bottom:8px;}
   .morph-media-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(210px,.55fr);
-    gap:18px;align-items:stretch;margin-top:16px;}
+    gap:18px;align-items:start;margin-top:16px;}
   .morph-demo{aspect-ratio:4/3;height:auto;padding:0;overflow:hidden;border-style:solid;}
   .morph-demo img{display:block;width:100%;height:100%;object-fit:cover;}
   .morph-location{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:14px;
@@ -204,6 +204,12 @@
     .g4{grid-template-columns:repeat(2,1fr);}      /* facts stay 2x2, never 1-up here */
     h1{font-size:42px;}
   }
+  @media (max-width:860px){
+    .morph-media-grid{grid-template-columns:1fr;}
+    .morph-location{text-align:center;}
+    .morph-location img{max-width:280px;margin-inline:auto;}
+    .morph-location p{margin-inline:auto;}
+  }
   @media (max-width:760px){
     .g2,.split,.lanerow,.lanerow.rev{grid-template-columns:1fr;}
     .lanerow.rev > .txt,.lanerow.rev > .media{grid-column:1;grid-row:auto;}
@@ -216,10 +222,6 @@
     .feature-primary .feature-copy{grid-column:1;grid-row:2;padding:20px;}
     .feature-primary > .media{grid-column:1;grid-row:1;border:0;
       border-bottom:1px solid rgba(255,255,255,.12);border-radius:0;}
-    .morph-media-grid{grid-template-columns:1fr;}
-    .morph-location{text-align:center;}
-    .morph-location img{max-width:280px;margin-inline:auto;}
-    .morph-location p{margin-inline:auto;}
     .performance-card{grid-template-columns:1fr;}
     .performance-stat{font-size:52px;}
     h1{font-size:38px;} h2{font-size:25px;}
@@ -316,25 +318,25 @@
     display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;margin-top:30px;}
 
   footer{margin-top:34px;padding-top:20px;border-top:1px solid var(--border);
-    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);}
+    display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;
+    font-size:12.5px;color:var(--muted);}
+  footer a{color:var(--orange-dk);font-weight:650;text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+  .footer-meta{display:grid;gap:5px;}
+  .font-control{display:grid;grid-template-columns:1fr;gap:5px;min-width:190px;color:var(--ink);}
+  .font-control span{font-weight:650;}
+  .font-control select{width:100%;font:inherit;color:var(--ink);background:var(--cream);border:1px solid var(--border);
+    border-radius:8px;padding:6px 28px 6px 8px;cursor:pointer;}
+  .footer-controls{display:grid;gap:8px;min-width:220px;padding:12px 14px;background:var(--card);
+    border:1px solid var(--border);border-radius:12px;color:var(--ink);}
+  .footer-controls > span{font-weight:700;}
+  .footer-controls label:not(.font-control){display:flex;align-items:center;gap:8px;cursor:pointer;}
+  .footer-controls input{width:15px;height:15px;cursor:pointer;accent-color:var(--orange);}
 
   /* ---------- designer extras ---------- */
-  #extras-bar{position:fixed;bottom:14px;right:14px;z-index:99;width:238px;max-width:calc(100vw - 28px);
-    background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 13px;font-size:12.5px;
-    box-shadow:0 3px 12px rgba(0,0,0,.10);display:grid;gap:9px;user-select:none;}
-  #extras-bar label{display:flex;align-items:center;gap:8px;cursor:pointer;}
-  #extras-bar .select-control{display:grid;grid-template-columns:1fr;gap:5px;cursor:default;}
-  #extras-bar .select-control span{font-weight:650;color:var(--ink);}
-  #extras-bar select{width:100%;font:inherit;color:var(--ink);background:var(--cream);border:1px solid var(--border);
-    border-radius:8px;padding:6px 28px 6px 8px;cursor:pointer;}
-  #extras-bar input{width:15px;height:15px;cursor:pointer;accent-color:var(--orange);}
   @media (max-width:560px){
-    /* Preview controls remain available without covering the page content. */
-    #extras-bar{position:relative;bottom:auto;right:auto;width:auto;max-width:none;
-      margin:10px 16px 0;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;
-      box-shadow:none;}
-    #extras-bar .select-control{grid-column:1/-1;}
-    #extras-bar label:not(.select-control){font-size:12px;white-space:nowrap;}
+    .footer-controls{width:100%;}
+    .font-control{width:100%;}
   }
   .note{background:#FFF8E6;border-left:3px solid #E0A800;padding:9px 12px;font-size:12.5px;
     color:#5A4A10;margin:12px 0;border-radius:0 8px 8px 0;}
@@ -348,24 +350,11 @@
 </head>
 <body class="hide-extras">
 
-<div id="extras-bar" aria-label="Preview controls">
-  <label class="select-control" for="font-picker">
-    <span>Main title font</span>
-    <select id="font-picker">
-      <option value="dynapuff">DynaPuff</option>
-      <option value="fuzzy">Fuzzy Bubbles</option>
-      <option value="sculpthand">Sculpt Hand</option>
-    </select>
-  </label>
-  <label><input type="checkbox" id="extras"> Show designer notes</label>
-  <label><input type="checkbox" id="testimonials" checked> Show testimonials</label>
-</div>
-
 <div class="page">
 
 <!-- ================= MASTHEAD ================= -->
 <header class="masthead">
-  <img src="branding/Logo_Rewind.png" alt="Sculpt Rewind">
+  <img src="branding/Logo_Rewind_720.png" alt="Sculpt Rewind">
   <p class="tagline">ZBrush-Style Undo History for Blender</p>
 </header>
 <div class="note"><b>Designer:</b> top navigation bar removed for now. The page leads with the centred logo, the intro GIF, then the trailer. If a nav returns later it should stay minimal and not compete with the hero.</div>
@@ -580,12 +569,12 @@
     <div class="card" style="padding:20px;">
       <div class="kicker"><span class="ico">🖌</span></div>
       <h3>All sculpt brushes</h3>
-      <p style="margin-top:4px;font-size:14px;">Including cloth brushes. <span class="ph">[one short line]</span></p>
+      <p style="margin-top:4px;font-size:14px;">Works with every sculpt brush, including Cloth brushes.</p>
     </div>
     <div class="card" style="padding:20px;">
       <div class="kicker"><span class="ico">💾</span></div>
-      <h3>Close it. Reopen it. Still there.</h3>
-      <p style="margin-top:4px;font-size:14px;" class="ph">[Your history saves inside the .blend.]</p>
+      <h3>Persistence</h3>
+      <p style="margin-top:4px;font-size:14px;">Close Blender, reopen your project, and pick up with your history still there.</p>
     </div>
   </div>
   <div class="note"><b>Designer:</b> both of these used to be full GIF sections; they are now <b>text only</b>. Two quiet cards, no media wells. They should read as a footnote to the feature run, lighter than anything above them.</div>
@@ -595,7 +584,7 @@
 <section class="sec">
   <span class="tag">10 · Facts strip</span>
   <div class="g4">
-    <div class="card" style="text-align:center;"><b>Blender <span class="ph">[versions]</span></b></div>
+    <div class="card" style="text-align:center;"><b>Blender 4.2+</b></div>
     <div class="card" style="text-align:center;"><b>Saves in your .blend</b></div>
     <div class="card" style="text-align:center;"><b>Per-object history</b></div>
     <div class="card" style="text-align:center;"><b>15M+ polygons</b></div>
@@ -611,11 +600,20 @@
     <h2 style="margin-bottom:14px;">Let's be clear</h2>
     <div class="g2">
       <div><h3 style="margin-bottom:8px;">It is</h3>
-        <ul class="ph" style="font-size:13.5px;color:var(--ink-2);padding-left:18px;">
-          <li>[a history layer for your sculpting work]</li><li>[a way to take back part of a mesh, not only all of it]</li><li>[a browsable, jump-anywhere timeline]</li><li>[saved with your file]</li></ul></div>
+        <ul style="font-size:13.5px;color:var(--ink-2);padding-left:18px;">
+          <li>A visual history of your sculpt</li>
+          <li>A timeline you can drag and explore</li>
+          <li>A way to restore all&mdash;or just part&mdash;of an earlier shape</li>
+          <li>A separate history for every object</li>
+          <li>Saved with your project</li>
+        </ul></div>
       <div><h3 style="margin-bottom:8px;">It isn't</h3>
-        <ul class="ph" style="font-size:13.5px;color:var(--ink-2);padding-left:18px;">
-          <li>[a replacement for Ctrl+Z]</li><li>[version control or a scene backup]</li><li>[unlimited: there is a step cap]</li></ul></div>
+        <ul style="font-size:13.5px;color:var(--ink-2);padding-left:18px;">
+          <li>A replacement for project backups</li>
+          <li>Version control for your whole Blender scene</li>
+          <li>A record of every change made outside sculpting</li>
+          <li>An endless history with no storage limit</li>
+        </ul></div>
     </div>
   </div>
   <div class="note"><b>Designer:</b> plain and unglamorous on purpose. Straight talk, not a feature panel.</div>
@@ -626,9 +624,22 @@
   <span class="tag">12 · Native Blender vs add-on</span>
   <div class="g2">
     <div class="cmp no"><h3 style="margin-bottom:8px;">Native Blender undo</h3>
-      <ul class="ph"><li>[Blind undo, one step at a time]</li><li>[All-or-nothing: the whole mesh goes back, or none of it]</li><li>[One global undo stack, not one per object]</li><li>[A hard limit on how far back you can go]</li><li>[No way to compare two versions]</li><li>[History gone when you close Blender]</li></ul></div>
+      <ul>
+        <li>Undo one step at a time</li>
+        <li>Guess what each step contains</li>
+        <li>Rewind the entire mesh</li>
+        <li>Share one undo history across your work</li>
+        <li>Lose the history when Blender closes</li>
+      </ul></div>
     <div class="cmp yes"><h3 style="margin-bottom:8px;">With Sculpt Rewind</h3>
-      <ul class="ph"><li>[A visual timeline you can scrub]</li><li>[Morph brush: rewind only the part you paint over]</li><li>[A separate history for every object]</li><li>[Your whole session on a slider]</li><li>[Jump to any earlier state instantly]</li><li>[History saved inside the .blend]</li></ul></div>
+      <ul>
+        <li>See your sculpt history</li>
+        <li>Drag through it instantly</li>
+        <li>Rewind only the area you brush</li>
+        <li>Keep a history for every object</li>
+        <li>Return to any saved step</li>
+        <li>Continue after reopening the project</li>
+      </ul></div>
   </div>
   <div class="note"><b>Designer:</b> the only pro / con list on the page. It sits down here with the other reading material, directly before the FAQ: a summary for someone weighing the decision, not a headline. Quiet reference table, not a hero moment. Rows line up across the two columns, point for point.</div>
 </section>
@@ -637,19 +648,43 @@
 <section class="sec" id="faq">
   <span class="tag">13 · FAQ</span>
   <div class="panel light">
-    <h2 style="margin-bottom:10px;">Questions</h2>
+    <h2 style="margin-bottom:10px;">FAQ</h2>
     <div class="g2">
       <div>
-        <div class="faq-item"><h3 class="ph">[Does it slow down sculpting?]</h3><p class="ph">[Answer]</p></div>
-        <div class="faq-item"><h3 class="ph">[Which Blender versions?]</h3><p class="ph">[Answer]</p></div>
-        <div class="faq-item"><h3 class="ph">[What exactly gets recorded?]</h3><p class="ph">[Answer]</p></div>
-        <div class="faq-item"><h3 class="ph">[How does the morph brush blend with the current mesh?]</h3><p class="ph">[Answer]</p></div>
+        <div class="faq-item">
+          <h3>Does it slow down sculpting?</h3>
+          <p>Sculpt Rewind is designed to stay out of your way while you work. Very large or complex sculpts may take longer to record and scrub, depending on your computer.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Which Blender versions does it support?</h3>
+          <p>Blender 4.2 and newer.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What does Sculpt Rewind remember?</h3>
+          <p>It remembers your sculpt, masks, Face Sets, vertex painting, hidden areas and supported Edit Mode changes.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How does the Morph Brush work?</h3>
+          <p>Choose an earlier step, then paint over the area you want back. Brush lightly for a subtle change or make several passes to move closer to the earlier shape.</p>
+        </div>
       </div>
       <div>
-        <div class="faq-item"><h3 class="ph">[How much memory does it use?]</h3><p class="ph">[Answer]</p></div>
-        <div class="faq-item"><h3 class="ph">[What happens when I share the file?]</h3><p class="ph">[Answer]</p></div>
-        <div class="faq-item"><h3 class="ph">[Refunds / support?]</h3><p class="ph">[Answer]</p></div>
-        <div class="faq-item"><h3 class="ph">[Does the morph brush need matching topology?]</h3><p class="ph">[Answer]</p></div>
+        <div class="faq-item">
+          <h3>How much memory does it use?</h3>
+          <p>It depends on the size of your sculpt and the length of its history. Larger meshes and major changes use more space. History controls help keep it manageable.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What happens when I share my project?</h3>
+          <p>Your history can travel beside the project or be packed into the <code>.blend</code>. Choose the option that works best for you before sharing.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How do support and refunds work?</h3>
+          <p>Need help? Contact support with your Blender version and a short description of the problem. Refunds follow the policy of the store where you purchased Sculpt Rewind.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Does the Morph Brush work after remeshing?</h3>
+          <p>Set a new Morph target after remeshing or changing the mesh structure. You can keep using the same target while making normal sculpting changes.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -677,13 +712,28 @@
   <div style="text-align:right;">
     <p style="margin-bottom:10px;font-size:14.5px;">Ready to scrub your sculpt?</p>
     <a class="btn" href="#">Get Sculpt Rewind</a>
-    <div style="font-size:12px;color:var(--muted);margin-top:8px;" class="ph">[One-time purchase. Free updates.]</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px;">One-time purchase · Blender 4.2+</div>
   </div>
 </div>
 
 <footer>
-  <div>© <span class="ph">[year]</span> Sculpt Rewind · <span class="ph">Made by ARMA / Gureza Studio</span></div>
-  <div class="ph">Docs · Changelog · Support · Superhive listing · Discord · X</div>
+  <div class="footer-meta">
+    <div>© 2026 Sculpt Rewind · Made by zero4mike</div>
+    <a href="https://discord.gg/vQ7qsbVYG" target="_blank" rel="noopener noreferrer">Discord</a>
+  </div>
+  <div class="footer-controls" aria-label="Preview controls">
+    <span>Preview controls</span>
+    <label class="font-control" for="font-picker">
+      <span>Main title font</span>
+      <select id="font-picker">
+        <option value="dynapuff">DynaPuff</option>
+        <option value="fuzzy">Fuzzy Bubbles</option>
+        <option value="sculpthand">Sculpt Hand</option>
+      </select>
+    </label>
+    <label><input type="checkbox" id="extras"> Show designer notes</label>
+    <label><input type="checkbox" id="testimonials" checked> Show testimonials</label>
+  </div>
 </footer>
 
 <div class="note"><b>Designer:</b> footer carries changelog and contact. Visible maintenance is a buying signal in this market.</div>
