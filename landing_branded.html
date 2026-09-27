@@ -55,8 +55,7 @@
   body.font-sculpthand .kicker,
   body.font-sculpthand .hand,
   body.font-sculpthand .tagline,
-  body.font-sculpthand .performance-stat,
-  body.font-sculpthand .tier .price{-webkit-text-stroke:var(--hand-stroke) currentColor;}
+  body.font-sculpthand .performance-stat{-webkit-text-stroke:var(--hand-stroke) currentColor;}
   /* the feature row keeps its own face, so it keeps its own weight too */
   body.font-sculpthand .featrow h3{-webkit-text-stroke:0;}
 
@@ -110,8 +109,12 @@
   .media.trailer{aspect-ratio:4/3;height:auto;max-width:860px;margin-inline:auto;
     padding:0;overflow:hidden;border:0;}
   .media.trailer iframe{display:block;width:100%;height:100%;border:0;}
+  .demo-label{text-align:center;margin:28px 0 10px;font-family:var(--display-font);
+    font-size:18px;color:var(--ink);}
   .media.hero{aspect-ratio:16/9;height:auto;}
   .media.wide{aspect-ratio:16/9;height:auto;}
+  .media.history-gif{aspect-ratio:4/3;height:auto;padding:0;overflow:hidden;border-style:solid;}
+  .media.history-gif img{display:block;width:100%;height:100%;object-fit:cover;}
   .media.lane{aspect-ratio:16/9;height:auto;border-radius:12px;}
   .media.sq{height:170px;}
   .media.thin{aspect-ratio:16/9;height:auto;}
@@ -167,6 +170,15 @@
     border:1px solid rgba(232,120,19,.12);}
   .movie-card .movie-label{font-size:12px;font-weight:750;letter-spacing:.1em;text-transform:uppercase;
     color:var(--orange-dk);margin-bottom:8px;}
+  .morph-media-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(210px,.55fr);
+    gap:18px;align-items:stretch;margin-top:16px;}
+  .morph-demo{aspect-ratio:4/3;height:auto;padding:0;overflow:hidden;border-style:solid;}
+  .morph-demo img{display:block;width:100%;height:100%;object-fit:cover;}
+  .morph-location{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:14px;
+    background:var(--card);border:1px solid var(--border);border-radius:14px;}
+  .morph-location img{display:block;width:100%;max-height:330px;object-fit:contain;border-radius:10px;
+    background:var(--dark);}
+  .morph-location p{font-size:14.5px;margin-top:7px;max-width:42ch;}
   .performance-card{display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:center;
     background:var(--dark);color:#fff;padding:24px;}
   .performance-card .hand{color:#f3a45c;}
@@ -189,7 +201,7 @@
      held far longer than usual. Collapsing to one column is a last resort,
      not the default. */
   @media (max-width:900px){
-    .g4{grid-template-columns:repeat(2,1fr);}      /* facts + pricing go 2x2, never 1-up here */
+    .g4{grid-template-columns:repeat(2,1fr);}      /* facts stay 2x2, never 1-up here */
     h1{font-size:42px;}
   }
   @media (max-width:760px){
@@ -204,6 +216,10 @@
     .feature-primary .feature-copy{grid-column:1;grid-row:2;padding:20px;}
     .feature-primary > .media{grid-column:1;grid-row:1;border:0;
       border-bottom:1px solid rgba(255,255,255,.12);border-radius:0;}
+    .morph-media-grid{grid-template-columns:1fr;}
+    .morph-location{text-align:center;}
+    .morph-location img{max-width:280px;margin-inline:auto;}
+    .morph-location p{margin-inline:auto;}
     .performance-card{grid-template-columns:1fr;}
     .performance-stat{font-size:52px;}
     h1{font-size:38px;} h2{font-size:25px;}
@@ -281,18 +297,6 @@
     letter-spacing:.09em;text-transform:uppercase;padding:2px 8px;border-radius:999px;
     vertical-align:middle;margin-left:7px;position:relative;top:-1px;}
   .kicker .new{margin-left:2px;}
-  /* numbered captions under the morph how-it-works strip */
-  .stepcap{font-size:13.5px;font-weight:650;margin-top:9px;color:var(--ink);}
-  .stepcap i{font-style:normal;color:var(--orange);}
-
-  /* ---------- pricing ---------- */
-  .tier{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
-  .tier.feature{border:2px solid var(--orange);box-shadow:0 4px 0 var(--orange-soft);}
-  .tier .price{font-family:var(--display-font);font-size:32px;color:var(--ink);margin:6px 0 10px;}
-  .tier ul{list-style:none;font-size:13px;color:var(--ink-2);}
-  .tier li{padding:4px 0 4px 18px;position:relative;}
-  .tier li:before{content:"✓";position:absolute;left:0;color:var(--orange);font-weight:700;}
-
   /* ---------- compare ---------- */
   .cmp{border-radius:14px;padding:18px;}
   .cmp.no{background:#FCF1EC;border:1px solid #F0CFC0;}
@@ -364,7 +368,7 @@
   <img src="branding/Logo_Rewind.png" alt="Sculpt Rewind">
   <p class="tagline">ZBrush-Style Undo History for Blender</p>
 </header>
-<div class="note"><b>Designer:</b> top navigation bar removed for now. The page leads with the centred logo and goes straight into the trailer. If a nav returns later it should stay minimal and not compete with the hero.</div>
+<div class="note"><b>Designer:</b> top navigation bar removed for now. The page leads with the centred logo, the intro GIF, then the trailer. If a nav returns later it should stay minimal and not compete with the hero.</div>
 
 <!-- ================= 1 · HERO ================= -->
 <section class="sec" id="see">
@@ -374,6 +378,17 @@
     <img src="branding/improved-dragon-hd.gif" alt="Scrubbing a dragon sculpt through its history">
   </div>
   <div class="note"><b>Designer:</b> this GIF is <b>background-matched</b>: it should feel drawn onto the cream page, not embedded in a player. No dark well, no play button, no chrome. It's the two-second "oh, I get it" before the trailer, so it autoplays and loops silently. Native size is 960×562, centred at its own ratio rather than stretched. The scrub bar is baked into the GIF, so nothing sits on top of it.</div>
+
+  <div class="demo-label">Watch the Demo</div>
+  <div class="media trailer">
+    <iframe
+      src="https://www.youtube-nocookie.com/embed/6fhCa978Uug?rel=0"
+      title="Sculpt Rewind launch trailer"
+      loading="lazy"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen></iframe>
+  </div>
 
 <!-- ================= FEATURE ICON ROW ================= -->
 <div class="sec">
@@ -386,24 +401,6 @@
   </div>
 </div>
 
-
-  <div class="media trailer">
-    <iframe
-      src="https://www.youtube-nocookie.com/embed/6fhCa978Uug?rel=0"
-      title="Sculpt Rewind launch trailer"
-      loading="lazy"
-      referrerpolicy="strict-origin-when-cross-origin"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen></iframe>
-  </div>
-
-  <div style="text-align:center;margin-top:30px;">
-    <h1>Ctrl+Z ❌&nbsp; Scrub your history ✅</h1>
-    <svg class="underline" style="margin:6px auto 0;" viewBox="0 0 190 12" fill="none">
-      <path d="M3 8.5C40 3.5 78 2.5 120 5.5C143 7 165 8 187 6" stroke="#E87813" stroke-width="3.5" stroke-linecap="round"/>
-    </svg>
-  </div>
-
   <div style="text-align:center;margin-top:34px;">
     <h2>Hover your mouse below.</h2>
   </div>
@@ -414,6 +411,13 @@
     <img id="scrubber-frame" src="media/anime-scrubber/frame-59.webp"
       alt="A Blender sculpt progressing from a base sphere to a finished character" draggable="false">
     <div class="scrubber-hint" id="scrubber-hint">Move across to scrub ↔</div>
+  </div>
+
+  <div style="text-align:center;margin-top:30px;">
+    <h1>Ctrl+Z ❌&nbsp; Scrub your history ✅</h1>
+    <svg class="underline" style="margin:6px auto 0;" viewBox="0 0 190 12" fill="none">
+      <path d="M3 8.5C40 3.5 78 2.5 120 5.5C143 7 165 8 187 6" stroke="#E87813" stroke-width="3.5" stroke-linecap="round"/>
+    </svg>
   </div>
 
   <div class="note"><b>Designer:</b> the centrepiece and the one genuinely interactive element on the page. A visitor moves across it and watches a character build up or rewind: the actual <b>feel</b> of scrubbing before buying. Keep the first-use hover cue and touch support. For now it runs on <b>a single WebP sequence</b>: no region buttons, no set switching. <b>No buy buttons in the hero</b>; the marketplace supplies its own purchase sidebar.</div>
@@ -428,7 +432,7 @@
   </div>
   <div class="deco">✦</div>
 </div>
-<div class="note"><b>Designer:</b> <b>interstitial testimonial pattern</b>: a thin single-quote band recurring three times down the page (here, mid-page, before pricing). Not a section: a breath between sections. Keep all three visually identical and lighter than surrounding blocks. One quote each, never a carousel.</div>
+<div class="note"><b>Designer:</b> <b>interstitial testimonial pattern</b>: a thin single-quote band recurring three times down the page (here, mid-page, before the closing call to action). Not a section: a breath between sections. Keep all three visually identical and lighter than surrounding blocks. One quote each, never a carousel.</div>
 
 <!-- ================= 2–4 · HISTORY EVERYWHERE ================= -->
 <section class="sec">
@@ -440,12 +444,16 @@
       <h2>Every object keeps its own undo history.</h2>
       <p>Switch objects without giving up your place. Each mesh carries a separate visual timeline, ready whenever you come back.</p>
     </div>
-    <div class="media wide">GIF: several objects in one scene, each scrubbed independently</div>
+    <div class="media history-gif">
+      <img src="media/gif-multi-short-720.gif" alt="Several Blender objects keeping separate sculpt histories">
+    </div>
   </div>
 
   <div class="feature-pair">
     <article class="feature-card">
-      <div class="media wide">GIF: vertex paint strokes scrubbed back and forth on the timeline</div>
+      <div class="media history-gif">
+        <img src="media/gif-vertex-long-560.gif" alt="Vertex paint strokes being scrubbed through the history timeline">
+      </div>
       <div class="feature-card-copy">
         <div class="kicker"><span class="ico">🎨</span></div>
         <h3>Vertex paint</h3>
@@ -454,7 +462,9 @@
     </article>
 
     <article class="feature-card">
-      <div class="media wide">GIF: Edit Mode changes scrubbed back and forth on the timeline</div>
+      <div class="media history-gif">
+        <img src="media/gif-edit-fast-bounce-720.gif" alt="Edit Mode changes being scrubbed back and forth through history">
+      </div>
       <div class="feature-card-copy">
         <div class="kicker"><span class="ico">📐</span></div>
         <h3>Edit Mode changes</h3>
@@ -476,35 +486,25 @@
     <p class="lead" style="margin-top:8px;font-size:15px;">Pick an earlier step, then paint over the area you want back. Only what you
       brush travels; the rest of the sculpt stays exactly where it is.</p>
 
-    <div class="media wide" style="margin-top:16px;">
-      <div><b>GIF: THE MORPH SHOT</b><br><br>
-      an earlier version of one region brushed back onto the current sculpt<br>
-      the brushed area rewinds · everything around it holds perfectly still</div>
-    </div>
+    <div class="morph-media-grid">
+      <div class="media morph-demo">
+        <img src="media/gif-morph-bounce-720.gif" alt="Morph History restoring part of a sculpt from an earlier history step">
+      </div>
 
-    <div class="g3" style="margin-top:16px;">
-      <div>
-        <div class="media mini">GIF: picking the step on the timeline</div>
-        <div class="stepcap"><i>1 ·</i> Pick a step</div>
-        <div class="lanesub">any point in this object&rsquo;s history</div>
-      </div>
-      <div>
-        <div class="media mini">GIF: brushing over the region</div>
-        <div class="stepcap"><i>2 ·</i> Brush the area</div>
-        <div class="lanesub ph">[brush controls, strength / falloff, copy TBD]</div>
-      </div>
-      <div>
-        <div class="media mini">GIF: turning the result, seam visible</div>
-        <div class="stepcap"><i>3 ·</i> Only that part changes</div>
-        <div class="lanesub">the rest of the sculpt is untouched</div>
+      <div class="morph-location">
+        <img src="media/morph-history-menu.png" alt="Morph History button highlighted in Blender's Sculpt Mode toolbar">
+        <div>
+          <div class="kicker"><span class="ico">↙</span></div>
+          <h3>Find it in the Sculpt Mode toolbar.</h3>
+          <p>Open the toolbar and choose <b>Morph History</b> to start brushing from an earlier step.</p>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="note"><b>Designer:</b> the newest feature and the hardest one to grasp from a still image, so it needs <b>motion first, words second</b>.
     It follows per-object history and vertex paint / Edit Mode, so by now the visitor understands scrubbing a whole object. This is the escalation:
-    <i>&ldquo;now paint time onto one part of it.&rdquo;</i> Full-width beat, never a tile. The three small GIFs are a
-    <b>how-it-works strip</b>; keep them clearly subordinate to the big one above (that one carries the idea, these only explain the steps).</div>
+    <i>&ldquo;now paint time onto one part of it.&rdquo;</i> The GIF carries the idea; the toolbar screenshot beside it shows where to find the tool.</div>
   <div class="note"><b>On the morph GIF:</b> the whole claim lives or dies on the viewer seeing that <b>the surrounding mesh does not move</b>.
     Frame it so a recognisable landmark stays visibly fixed while the brushed region changes, and keep the timeline in shot so it reads
     which step is being pulled from. A cut or a camera move at the wrong moment kills the proof.</div>
@@ -523,7 +523,9 @@
       <h2>Movie mode</h2>
       <p style="margin-top:8px;font-size:14.5px;">Turn your sculpt&rsquo;s history into a video you can share.</p>
     </div>
-    <div class="media wide">GIF / VIDEO: movie mode output, the sculpt playing back as a film</div>
+    <div class="media history-gif">
+      <img src="media/gif-movie-560.gif" alt="Sculpt history playing back in Movie Mode">
+    </div>
   </div>
   <div class="note"><b>Designer:</b> sells itself as motion. Show the exported <b>result</b>, not the export dialog. Worth giving room; it's the feature people will share, which makes it marketing that markets itself.</div>
 </section>
@@ -541,16 +543,18 @@
 <!-- ================= 7 · FACE SETS, MASKS, VISIBILITY ================= -->
 <section class="sec">
   <span class="tag">7 · Face sets, masks &amp; visibility</span>
-  <div class="panel">
-    <div class="txt"><h2>Face sets, masks &amp; visibility</h2>
-      <p style="margin-top:6px;font-size:14.5px;"><span class="ph">[one short line covering all three]</span></p></div>
-    <div class="g3" style="margin-top:16px;">
-      <div><div class="media mini">GIF: face sets</div><div class="lanecap">Face sets</div></div>
-      <div><div class="media mini">GIF: masks</div><div class="lanecap">Masks</div></div>
-      <div><div class="media mini">GIF: visibility</div><div class="lanecap">Visibility</div></div>
+  <div class="panel split movie-card">
+    <div>
+      <div class="movie-label">More than sculpt strokes</div>
+      <div class="kicker"><span class="ico">◐</span></div>
+      <h2>Face sets, masks &amp; visibility</h2>
+      <p style="margin-top:8px;font-size:14.5px;">Scrub face sets, masks and hidden geometry through the same visual history.</p>
+    </div>
+    <div class="media history-gif">
+      <img src="media/gif-lanes-720.gif" alt="Face sets, masks, and visibility changes being scrubbed through history">
     </div>
   </div>
-  <div class="note"><b>Designer:</b> a <b>condensed group</b>: heading on top, three small GIFs beneath. One short line of copy.</div>
+  <div class="note"><b>Designer:</b> this follows the same compact text-and-GIF rhythm as Movie Mode, demonstrating face sets, masks and visibility together.</div>
 </section>
 
 <!-- ================= 8 · PERFORMANCE ================= -->
@@ -587,41 +591,9 @@
   <div class="note"><b>Designer:</b> both of these used to be full GIF sections; they are now <b>text only</b>. Two quiet cards, no media wells. They should read as a footnote to the feature run, lighter than anything above them.</div>
 </section>
 
-<!-- ================= 10 · ZBRUSH COMPARISON ================= -->
-<section class="sec" id="compare">
-  <span class="tag">10 · ZBrush comparison</span>
-  <div class="panel">
-    <div class="kicker"><span class="ico">☆</span></div>
-    <h2 style="margin-bottom:16px;">The ZBrush feature you've been missing</h2>
-    <div class="media wide">
-      <div><b>GIF: ZBRUSH AND OURS, SIDE BY SIDE</b><br><br>
-      ZBrush's history slider on the left, ours in Blender on the right<br>
-      same sculpt, same crop, scrubbed in sync</div>
-    </div>
-  </div>
-  <div class="note"><b>Designer:</b> one GIF, no lists. The side-by-side is baked into the GIF itself, so the page just gives it room. Both halves must match in crop, scale and slider position so the eye reads them as equivalents. The pro / con list now lives in the detail half (section 14) and compares against <b>native Blender</b>, not ZBrush.</div>
-</section>
-
-<!-- ================= 11 · MADE WITH IT ================= -->
+<!-- ================= 10 · FACTS STRIP ================= -->
 <section class="sec">
-  <span class="tag">11 · Made with it</span>
-  <div class="panel split">
-    <div>
-      <div class="kicker"><span class="ico">📷</span></div>
-      <h2>Sculpted with Sculpt Rewind</h2>
-    </div>
-    <div class="g3">
-      <div><div class="media sq">SCULPT 1</div><div class="lanecap">[title]</div><div class="lanesub">by [artist]</div></div>
-      <div><div class="media sq">SCULPT 2</div><div class="lanecap">[title]</div><div class="lanesub">by [artist]</div></div>
-      <div><div class="media sq">SCULPT 3</div><div class="lanecap">[title]</div><div class="lanesub">by [artist]</div></div>
-    </div>
-  </div>
-  <div class="note"><b>Designer:</b> real commissioned sculpts. Artwork is the hero; names small. Still the visual half, so no testimonial paragraphs.</div>
-</section>
-
-<!-- ================= 12 · FACTS STRIP ================= -->
-<section class="sec">
-  <span class="tag">12 · Facts strip</span>
+  <span class="tag">10 · Facts strip</span>
   <div class="g4">
     <div class="card" style="text-align:center;"><b>Blender <span class="ph">[versions]</span></b></div>
     <div class="card" style="text-align:center;"><b>Saves in your .blend</b></div>
@@ -632,9 +604,9 @@
 
 <div class="fold"><b>▼ EVERYTHING BELOW IS THE DETAIL HALF</b>, for readers already interested. Text-heavy is fine here. Nothing below this line should move above it.</div>
 
-<!-- ================= 13 · LIMITS ================= -->
+<!-- ================= 11 · LIMITS ================= -->
 <section class="sec">
-  <span class="tag">13 · What it doesn't do</span>
+  <span class="tag">11 · What it doesn't do</span>
   <div class="panel light">
     <h2 style="margin-bottom:14px;">Let's be clear</h2>
     <div class="g2">
@@ -649,21 +621,21 @@
   <div class="note"><b>Designer:</b> plain and unglamorous on purpose. Straight talk, not a feature panel.</div>
 </section>
 
-<!-- ================= 14 · NATIVE BLENDER VS ADD-ON ================= -->
+<!-- ================= 12 · NATIVE BLENDER VS ADD-ON ================= -->
 <section class="sec">
-  <span class="tag">14 · Native Blender vs add-on</span>
+  <span class="tag">12 · Native Blender vs add-on</span>
   <div class="g2">
     <div class="cmp no"><h3 style="margin-bottom:8px;">Native Blender undo</h3>
       <ul class="ph"><li>[Blind undo, one step at a time]</li><li>[All-or-nothing: the whole mesh goes back, or none of it]</li><li>[One global undo stack, not one per object]</li><li>[A hard limit on how far back you can go]</li><li>[No way to compare two versions]</li><li>[History gone when you close Blender]</li></ul></div>
     <div class="cmp yes"><h3 style="margin-bottom:8px;">With Sculpt Rewind</h3>
       <ul class="ph"><li>[A visual timeline you can scrub]</li><li>[Morph brush: rewind only the part you paint over]</li><li>[A separate history for every object]</li><li>[Your whole session on a slider]</li><li>[Jump to any earlier state instantly]</li><li>[History saved inside the .blend]</li></ul></div>
   </div>
-  <div class="note"><b>Designer:</b> the only pro / con list on the page, and it compares against <b>native Blender</b>, not ZBrush (ZBrush gets the side-by-side GIF in section 10). Sits down here with the other reading material, directly before the FAQ: a summary for someone weighing the decision, not a headline. Quiet reference table, not a hero moment. Rows line up across the two columns, point for point.</div>
+  <div class="note"><b>Designer:</b> the only pro / con list on the page. It sits down here with the other reading material, directly before the FAQ: a summary for someone weighing the decision, not a headline. Quiet reference table, not a hero moment. Rows line up across the two columns, point for point.</div>
 </section>
 
-<!-- ================= 15 · FAQ ================= -->
+<!-- ================= 13 · FAQ ================= -->
 <section class="sec" id="faq">
-  <span class="tag">15 · FAQ</span>
+  <span class="tag">13 · FAQ</span>
   <div class="panel light">
     <h2 style="margin-bottom:10px;">Questions</h2>
     <div class="g2">
@@ -692,26 +664,9 @@
   </div>
   <div class="deco">✦</div>
 </div>
-<div class="note"><b>Designer:</b> third and final strip, immediately before pricing: the last nudge before a buying decision.</div>
+<div class="note"><b>Designer:</b> third and final strip, immediately before the closing call to action: the last nudge before a buying decision.</div>
 
-<!-- ================= 16 · PRICING ================= -->
-<section class="sec" id="pricing">
-  <span class="tag">16 · Pricing</span>
-  <div class="kicker"><span class="spark">✦</span> Pricing</div>
-  <div class="g4" style="margin-top:12px;">
-    <div class="tier"><h3 class="ph">[Tier 1: Free]</h3><div class="price ph">$XX</div>
-      <ul class="ph"><li>[feature]</li><li>[feature]</li></ul></div>
-    <div class="tier feature"><h3 class="ph">[Tier 2]</h3><div class="price ph">$XX</div>
-      <ul class="ph"><li>[feature]</li><li>[feature]</li></ul></div>
-    <div class="tier"><h3 class="ph">[Tier 3]</h3><div class="price ph">$XX</div>
-      <ul class="ph"><li>[feature]</li><li>[feature]</li></ul></div>
-    <div class="tier"><h3 class="ph">[Tier 4: Studio]</h3><div class="price ph">$XX</div>
-      <ul class="ph"><li>[seats]</li><li>[commercial]</li></ul></div>
-  </div>
-  <div class="note"><b>Designer:</b> pricing sits near the end, after all the proof, so the <b>Pricing link in the nav must anchor straight here</b>. Tier count, names and prices all still open; build flexible enough to drop to three tiers or two. The highlighted tier is a placeholder for whichever becomes the recommended default.</div>
-</section>
-
-<!-- ================= 17 · CLOSING ================= -->
+<!-- ================= 14 · CLOSING ================= -->
 <div class="finalcta">
   <div>
     <h2>Sculpt with confidence.<br>Undo without limits.</h2>
@@ -748,9 +703,9 @@
       <li><b>Doodle set</b>: sparkles, underline swooshes, arrows with handwritten labels, in the style of the mockups.</li>
       <li><b>GIF frame treatment</b>: a consistent frame/shadow/corner style for the 12+ media wells.</li>
       <li><b>Social card</b> (Open Graph) for Reddit / X / Discord previews.</li>
-      <li><b>Mobile layouts</b> for all 17 blocks.</li>
+      <li><b>Mobile layouts</b> for the full page.</li>
     </ul>
-    <p style="font-size:13.5px;margin-top:10px;"><b>We provide:</b> trailer, all GIFs, the WebP frame sequence, screenshots, final pricing and copy. <b>You provide:</b> layout, identity, visual system.</p>
+    <p style="font-size:13.5px;margin-top:10px;"><b>We provide:</b> trailer, all GIFs, the WebP frame sequence, screenshots and final copy. <b>You provide:</b> layout, identity, visual system.</p>
   </div>
 </section>
 
@@ -809,19 +764,24 @@
       scrubber.classList.add('is-active');
     }
 
-    function scheduleScrubberPrompt() {
+    function getScrubberPromptDelay(event) {
+      if (event && event.pointerType && event.pointerType !== 'mouse') return 2000;
+      return window.matchMedia('(hover: none), (pointer: coarse)').matches ? 2000 : 500;
+    }
+
+    function scheduleScrubberPrompt(event) {
       if (scrubberPromptTimer) window.clearTimeout(scrubberPromptTimer);
       scrubberPromptTimer = window.setTimeout(function () {
         scrubber.classList.remove('is-active');
         scrubberPromptTimer = null;
-      }, 500);
+      }, getScrubberPromptDelay(event));
     }
 
     scrubber.addEventListener('pointerenter', function () {
       activateScrubber();
     });
     scrubber.addEventListener('pointerleave', function (event) {
-      if (!scrubber.hasPointerCapture(event.pointerId)) scheduleScrubberPrompt();
+      if (!scrubber.hasPointerCapture(event.pointerId)) scheduleScrubberPrompt(event);
     });
     scrubber.addEventListener('pointermove', function (event) {
       if (event.pointerType === 'mouse' || scrubber.hasPointerCapture(event.pointerId)) {
@@ -836,10 +796,10 @@
     });
     scrubber.addEventListener('pointerup', function (event) {
       if (scrubber.hasPointerCapture(event.pointerId)) scrubber.releasePointerCapture(event.pointerId);
-      if (event.pointerType !== 'mouse') scheduleScrubberPrompt();
+      if (event.pointerType !== 'mouse') scheduleScrubberPrompt(event);
     });
-    scrubber.addEventListener('pointercancel', function () {
-      scheduleScrubberPrompt();
+    scrubber.addEventListener('pointercancel', function (event) {
+      scheduleScrubberPrompt(event);
     });
     scrubber.addEventListener('keydown', function (event) {
       var nextIndex = scrubberIndex;
