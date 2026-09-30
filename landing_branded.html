@@ -149,6 +149,9 @@
     border:1px solid rgba(232,120,19,.12);}
   .movie-card .movie-label{font-size:12px;font-weight:750;letter-spacing:.1em;text-transform:uppercase;
     color:var(--orange-dk);margin-bottom:8px;}
+  .performance-note{margin-top:14px;padding:15px 18px;background:var(--orange-soft);
+    border:1px solid rgba(232,120,19,.18);border-radius:12px;color:var(--ink-2);font-size:13.5px;}
+  .performance-note strong{color:var(--ink);}
   .morph-media-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(210px,.55fr);
     gap:18px;align-items:start;margin-top:16px;}
   .morph-demo{aspect-ratio:4/3;height:auto;padding:0;overflow:hidden;border-style:solid;}
@@ -298,7 +301,7 @@
 
 <div class="page">
 
-<div class="beta-notice">Sculpt Rewind is Beta (<a href="https://discord.gg/vQ7qsbVYG" target="_blank" rel="noopener noreferrer">Join our Discord</a>)</div>
+<div class="beta-notice">Sculpt Rewind is in Beta (<a href="https://discord.gg/vQ7qsbVYG" target="_blank" rel="noopener noreferrer">Join our Discord</a>)</div>
 
 <!-- ================= MASTHEAD ================= -->
 <header class="masthead">
@@ -481,6 +484,7 @@
       <img src="media/gif-lanes-720.gif" alt="Face sets, masks, and visibility changes being scrubbed through history">
     </div>
   </div>
+  <p class="performance-note"><strong>Working with extremely dense sculpts?</strong> Maintaining a visual history adds some processing and memory overhead. You may reach your computer’s practical vertex limit sooner than when sculpting without the add-on, especially in complex Blender scenes. Meshes in the low millions of polygons should generally be okay.</p>
   <div class="note"><b>Designer:</b> this follows the same compact text-and-GIF rhythm as Movie Mode, demonstrating face sets, masks and visibility together.</div>
 </section>
 
