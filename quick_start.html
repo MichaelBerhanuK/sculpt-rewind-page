@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sculpt Rewind installation, shortcuts, history controls, Movie Mode, saving behavior and current limitations for Blender.">
+<title>Sculpt Rewind Documentation</title>
+<style>
+  @font-face {
+    font-family: "DynaPuff";
+    src: url("branding/DynaPuff-VariableFont_wdth,wght.ttf") format("truetype");
+    font-weight: 400 700;
+    font-display: swap;
+  }
+
+  :root {
+    --cream: #fbf7f0;
+    --card: #fffdf9;
+    --ink: #2a2724;
+    --ink-2: #6b645c;
+    --orange: #e87813;
+    --orange-dark: #c4630c;
+    --orange-soft: #fbe7d3;
+    --border: rgba(42, 39, 36, 0.11);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--cream);
+  }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--cream);
+    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    width: min(820px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 58px 0 64px;
+  }
+
+  header {
+    padding-bottom: 34px;
+    border-bottom: 2px solid var(--orange);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: "DynaPuff", ui-rounded, system-ui, sans-serif;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(38px, 8vw, 66px);
+    line-height: 1;
+    color: var(--orange);
+    letter-spacing: 0.01em;
+  }
+
+  .intro {
+    max-width: 680px;
+    margin: 20px 0 0;
+    color: var(--ink-2);
+    font-size: 18px;
+  }
+
+  .requirement {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 6px 12px;
+    color: var(--orange-dark);
+    background: var(--orange-soft);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 750;
+  }
+
+  section {
+    padding: 30px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h2 {
+    margin: 0 0 14px;
+    font-size: 25px;
+    line-height: 1.2;
+  }
+
+  h3 {
+    margin: 24px 0 9px;
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  p {
+    margin: 0 0 14px;
+    color: var(--ink-2);
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  ol,
+  ul {
+    margin: 0;
+    padding-left: 1.35rem;
+    color: var(--ink-2);
+  }
+
+  li + li {
+    margin-top: 9px;
+  }
+
+  strong,
+  code {
+    color: var(--ink);
+  }
+
+  code {
+    padding: 2px 6px;
+    background: var(--orange-soft);
+    border-radius: 5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+  }
+
+  .shortcuts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 10px 22px;
+    margin: 0 0 18px;
+  }
+
+  .shortcuts dt {
+    font-weight: 750;
+  }
+
+  .shortcuts dd {
+    margin: 0;
+    color: var(--ink-2);
+  }
+
+  .note {
+    margin-top: 18px;
+    padding: 16px 18px;
+    background: var(--orange-soft);
+    border: 1px solid rgba(232, 120, 19, 0.18);
+    border-radius: 12px;
+    color: var(--ink-2);
+  }
+
+  .menu-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .menu-list li {
+    padding-left: 18px;
+    position: relative;
+  }
+
+  .menu-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--orange);
+    font-weight: 800;
+  }
+
+  footer {
+    padding-top: 28px;
+    color: var(--ink-2);
+    font-size: 13px;
+  }
+
+  @media (max-width: 560px) {
+    body {
+      font-size: 15px;
+    }
+
+    main {
+      width: min(100% - 28px, 820px);
+      padding: 38px 0 44px;
+    }
+
+    header {
+      padding-bottom: 27px;
+    }
+
+    .intro {
+      font-size: 16px;
+    }
+
+    section {
+      padding: 25px 0;
+    }
+
+    h2 {
+      font-size: 22px;
+    }
+
+    .shortcuts {
+      grid-template-columns: 1fr;
+      gap: 3px;
+    }
+
+    .shortcuts dd + dt {
+      margin-top: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Sculpt Rewind Documentation</h1>
+    <p class="intro">Undo history for sculpting, masks, Face Sets and colors. Scrub back and forth through every change on a mesh, like a timeline.</p>
+    <div class="requirement">Requires Blender 4.2 or newer</div>
+  </header>
+
+  <section>
+    <h2>Install</h2>
+    <ol>
+      <li>Go to <strong>Edit → Preferences → Get Extensions → Install from Disk</strong>.</li>
+      <li>Pick the Sculpt Rewind <code>.zip</code> file.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Activating</h2>
+    <ul>
+      <li>History starts on an object's first stroke. Opening a file or switching modes records nothing.</li>
+      <li>Painting first in Vertex Paint mode also starts history.</li>
+      <li><strong>Turn Off Undo History</strong> pauses recording and keeps the existing steps. Changes made while recording is off become the new starting point when you turn it back on.</li>
+      <li><strong>Reset and Turn Off</strong> removes the history entirely and cannot be undone.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Getting Started</h2>
+    <ol>
+      <li>Select a mesh and enter Sculpt Mode.</li>
+      <li>Sculpt as usual. Each stroke is recorded as one step.</li>
+      <li>The Undo History scrubber appears at the bottom of the 3D View. Drag along it to move through your history.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>What Gets Recorded</h2>
+    <p>Sculpt Rewind records sculpt strokes, masks, Face Sets, visibility, vertex colors, filters, and topology-changing tools such as Voxel Remesh and Trim. Filter adjustments made through <code>F9</code> update the same step. Edit Mode changes are grouped into one step when you leave, including Shade Smooth or Flat; entering and leaving without changes records nothing.</p>
+  </section>
+
+  <section>
+    <h2>Shortcuts</h2>
+    <dl class="shortcuts">
+      <dt>Step back</dt>
+      <dd><code>Ctrl+Z</code> · <code>Cmd+Z</code> on Mac</dd>
+      <dt>Step forward</dt>
+      <dd><code>Ctrl+Shift+Z</code> · <code>Cmd+Shift+Z</code> on Mac</dd>
+    </dl>
+    <div class="note">
+      <strong>Branching and truncation:</strong> If you step back and then sculpt, you start a new branch. The confirmation appears only when you would lose at least the <strong>Truncation Warning Threshold</strong> number of steps set in Add-on Preferences. Below that threshold, future steps are dropped silently. After confirming, repeat the stroke to continue.
+    </div>
+  </section>
+
+  <section>
+    <h2>History Menu</h2>
+    <p>The dot next to the scrubber opens the History Menu.</p>
+    <ul class="menu-list">
+      <li><strong>Use Global / Active Object Undo History:</strong> Switch between one object's history and a single timeline for all objects.</li>
+      <li><strong>Preserve Modes:</strong> Keep each object's mode when Global history switches objects.</li>
+      <li><strong>Set Morph Target Here:</strong> Mark the current step as a target.</li>
+      <li><strong>Morph History Brush:</strong> In Sculpt Mode, paint parts of the mesh back toward the target.</li>
+      <li><strong>Delete Past Undo Steps:</strong> Remove older steps to free memory and reduce the size of the saved history. Later steps stay.</li>
+      <li><strong>Reset Undo History:</strong> Clear this object's history. The current mesh becomes the new starting point.</li>
+      <li><strong>Turn Off Undo History:</strong> Pause recording while keeping the existing steps.</li>
+      <li><strong>Reset and Turn Off:</strong> Remove the history entirely and stop recording. This cannot be undone.</li>
+      <li><strong>Turn On Undo History:</strong> Start recording again on an object where it was turned off.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Object and Global History</h2>
+    <ul>
+      <li><code>Alt+Q</code> switches objects in Sculpt Mode, and each object keeps its own history.</li>
+      <li><strong>Global History</strong> shows every object's steps on one timeline, in order.</li>
+      <li>With <strong>Preserve Modes</strong> off, Global History plays back the geometry without switching the active object or mode.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Morph History Brush</h2>
+    <ol>
+      <li>Set a target from the History Menu with <strong>Set Morph Target Here</strong>.</li>
+      <li>Pick the <strong>Morph History</strong> tool.</li>
+      <li>Paint over the areas you want to move back toward the target.</li>
+    </ol>
+    <p class="note">Each Morph stroke is one normal undo step. Morph does not work with Shape Keys, Dyntopo or Multires.</p>
+  </section>
+
+  <section>
+    <h2>Movie Mode</h2>
+    <p>Play your whole sculpting session back as an animation—for example, to render a timelapse.</p>
+    <ol>
+      <li>Switch the History Menu to <strong>Use Global Undo History</strong>. Movie Mode only works with Global history.</li>
+      <li>Open the sidebar with <code>N</code>, then go to <strong>Undo History → Movie Mode</strong>. Turn it on with the checkbox in the header.</li>
+      <li>Click <strong>Quick Auto Key</strong>. This keys the first and last steps of your history on the Timeline.</li>
+      <li>Press Play or scrub the Timeline to watch the session rebuild itself.</li>
+    </ol>
+    <p>You can also keyframe the Step value yourself to set the timing. <strong>Frames per Step</strong> controls playback speed.</p>
+    <p class="note">While Movie Mode is on, the history scrubber is locked and the Timeline drives playback. Movie Mode only plays history back—it never changes your history. Turning it off pauses playback, and your keyframes stay.</p>
+  </section>
+
+  <section>
+    <h2>Sidebar</h2>
+    <p>Open it with <code>N</code>, then choose the <strong>Undo History</strong> tab. From there you can:</p>
+    <ul>
+      <li>Reset history for this object or for all objects</li>
+      <li>Use Movie Mode</li>
+      <li>Change how the scrubber looks</li>
+      <li>Set memory limits</li>
+    </ul>
+
+    <h3>Collection Filtering</h3>
+    <p>Open <strong>Sidebar → Undo History → Collection Filtering</strong>.</p>
+    <ul>
+      <li><strong>Blacklist:</strong> Exclude selected collections.</li>
+      <li><strong>Whitelist:</strong> Record only objects in selected collections.</li>
+      <li>Excluded objects record nothing and their existing history is hidden, not deleted. Moving them back into an included collection brings the history back.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Saving</h2>
+    <p>Choose how history is stored in Add-on Preferences:</p>
+    <ul>
+      <li><strong>Sidecar:</strong> Stores a history folder beside the <code>.blend</code> file for the fastest saves.</li>
+      <li><strong>Embed:</strong> Stores history inside the <code>.blend</code>, giving you one file to share.</li>
+      <li><strong>Both:</strong> Keeps both forms of storage.</li>
+    </ul>
+    <p class="note">In Sidecar mode, keep the history folder next to the <code>.blend</code> and keep the matching name. If you rename or move the <code>.blend</code> without its history folder, you will see <strong>“Sculpt Undo History Not Found.”</strong></p>
+    <p>To send someone a single file, switch to <strong>Embed</strong> and save.</p>
+    <h3>Recovery after a crash</h3>
+    <p><strong>Last Saved</strong> is the safe default. Choose <strong>Interrupted Session</strong> to recover the unsaved steps from the interrupted session.</p>
+  </section>
+
+  <section>
+    <h2>Unsupported / Warnings</h2>
+    <ul>
+      <li><strong>Dyntopo and Multires:</strong> Not supported. A warning appears in the viewport.</li>
+      <li><strong>Object transforms:</strong> Not recorded. Moving a sculpted object can make older steps play back in the wrong place.</li>
+      <li><strong>Unsupported data:</strong> Modifiers, Shape Keys, Materials, Vertex Groups and Weight Paint are not stored. Deform modifiers such as Armature and Displace can produce unpredictable results.</li>
+      <li><strong>Join (<code>Ctrl+J</code>):</strong> Sculpt Rewind asks first, then merges the histories into one.</li>
+      <li><strong>Separate (<code>P</code>) / Mask Extract:</strong> Sculpt Rewind asks first. The new object starts its own history.</li>
+      <li><strong>Linked Duplicate (<code>Alt+D</code>):</strong> A warning explains that the objects share mesh data. Use <code>Shift+D</code> for independent history.</li>
+      <li><strong>Animated objects:</strong> Playback may differ from what was recorded.</li>
+      <li><strong>Global Undo:</strong> Must be enabled under <strong>Preferences → System</strong>.</li>
+    </ul>
+  </section>
+
+  <footer>© 2026 Sculpt Rewind · Made by zero4mike</footer>
+</main>
+</body>
+</html>
